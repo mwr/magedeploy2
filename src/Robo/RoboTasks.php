@@ -249,6 +249,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function taskArtifactCreatePackages()
     {
         $tarBin = $this->config('env/tar_bin');
+        $gitDir = $this->config('deploy/git_dir');
         $magentoDir = $this->config('deploy/magento_dir');
         $assets = $this->config('deploy/assets');
 
@@ -277,9 +278,9 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
                 $tarOptions = implode(' ', $options);
             }
 
-            $tarCmd = "$tarBin $tarOptions czf $assetName $dir";
+            $tarCmd = "$tarBin $tarOptions -czf $assetName $dir";
             $task = $this->taskExec($tarCmd);
-            $task->dir($magentoDir);
+            $task->dir($gitDir);
 
             $collection->addTask($task);
         }
