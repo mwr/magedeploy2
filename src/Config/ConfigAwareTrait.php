@@ -1,12 +1,20 @@
 <?php
+/**
+ * @copyright Copyright (c) 2017 Matthias Walter
+ *
+ * @see LICENSE
+ */
 
 namespace Mwltr\MageDeploy2\Config;
 
 /**
- * Configs
+ * ConfigAwareTrait
  */
 trait ConfigAwareTrait
 {
+    /**
+     * @var ConfigReader
+     */
     protected $deployConfigReader;
 
     /**
@@ -32,6 +40,9 @@ trait ConfigAwareTrait
 
     }
 
+    /**
+     * @return Config|null
+     */
     protected function getDeployConfig()
     {
         if ($this->deployConfig === null) {
@@ -41,6 +52,9 @@ trait ConfigAwareTrait
         return $this->deployConfig;
     }
 
+    /**
+     *
+     */
     protected function initDeployConfig()
     {
         $this->deployConfig = $this->getDeployConfigReader()->read();

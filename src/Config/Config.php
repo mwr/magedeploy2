@@ -2,7 +2,7 @@
 /**
  * @copyright Copyright (c) 2017 Matthias Walter
  *
- * @see PROJECT_LICENSE.txt
+ * @see LICENSE
  */
 
 namespace Mwltr\MageDeploy2\Config;
@@ -43,6 +43,14 @@ class Config
         return $data;
     }
 
+    /**
+     * Set a Config Value
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return $this
+     */
     public function set($key, $value)
     {
         $this->data[$key] = $value;

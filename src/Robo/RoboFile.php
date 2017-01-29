@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright Copyright (c) 2017 Matthias Walter
+ *
+ * @see LICENSE
+ */
 
 namespace Mwltr\MageDeploy2\Robo;
 
