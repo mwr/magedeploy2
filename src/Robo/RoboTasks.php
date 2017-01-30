@@ -40,6 +40,11 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $this->stopOnFail(true);
     }
 
+    protected function taskDeployCheck()
+    {
+        $this->task(\Mwltr\MageDeploy2\Robo\Task\ValidateEnvironmentTask::class)->run();
+    }
+
     /**
      * Build Task to update source code to desired branch/tag
      *
