@@ -9,7 +9,10 @@
             "email": "mat.walter@web.de"
         }
     ],
-    "require": {},
+    "require": {
+        "mwltr/robo-deployer": "^1.0.0",
+        "mwltr/robo-magento2": "^1.0.0"
+    },
     "autoload": {
         "psr-4": {
             "Mwltr\\MageDeploy2\\": "src"
