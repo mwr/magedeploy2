@@ -8,6 +8,7 @@
 namespace Mwltr\MageDeploy2\Robo;
 
 use Consolidation\Log\ConsoleLogLevel;
+use Mwltr\MageDeploy2\Robo\Task\ValidateEnvironmentTask;
 use Psr\Log\LoggerAwareInterface;
 
 /**
@@ -42,7 +43,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 
     protected function taskDeployCheck()
     {
-        $this->task(\Mwltr\MageDeploy2\Robo\Task\ValidateEnvironmentTask::class)->run();
+        $this->task(ValidateEnvironmentTask::class)->run();
     }
 
     /**
@@ -231,6 +232,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function taskMagentoSetupStaticContentDeploy()
     {
         $magentoDir = $this->config('deploy/magento_dir');
+        /** @var array $themes */
         $themes = $this->config('deploy/themes');
 
         $collection = $this->collectionBuilder();
@@ -256,6 +258,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $tarBin = $this->config('env/tar_bin');
         $gitDir = $this->config('deploy/git_dir');
         $magentoDir = $this->config('deploy/magento_dir');
+        /** @var array $assets */
         $assets = $this->config('deploy/assets');
 
         $collection = $this->collectionBuilder();
@@ -341,7 +344,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     {
         $context = [
             'time' => $this->getExecutionTime(),
-            'timer-label' => "in",
+            'timer-label' => 'in',
         ];
         $this->logger->log(ConsoleLogLevel::SUCCESS, "<info>$method</info> finished", $context);
     }
