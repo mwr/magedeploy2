@@ -105,7 +105,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $this->taskMagentoSetupStaticContentDeploy()->run();
 
         $this->printTaskInfo('GENERATE ARTIFACTS');
-        $this->taskArtifactCreatePackages();
+        $this->taskArtifactCreatePackages()->run();
 
         $this->stopTimer();
         $this->printRuntime(__FUNCTION__);
