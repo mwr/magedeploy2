@@ -7,6 +7,8 @@
 
 namespace Mwltr\MageDeploy2\Robo\Task;
 
+use Robo\Result;
+
 /**
  * ValidateEnvironment
  */
@@ -20,7 +22,7 @@ class ValidateEnvironmentTask extends \Robo\Task\BaseTask
 
         // @todo validate git repository can be fetched
 
-        return $validation;
+        return Result::success($this);
     }
 
     /**
