@@ -1,0 +1,21 @@
+{
+    "name": "mwltr/magedeploy2",
+    "description": "Deployment Setup for Magento2 using robo and deployer",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matthias Walter",
+            "email": "mat.walter@web.de"
+        }
+    ],
+    "require": {
+        "mwltr/robo-deployer": "^1.0.0",
+        "mwltr/robo-magento2": "^1.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mwltr\\MageDeploy2\\": "src"
+        }
+    }
+}
