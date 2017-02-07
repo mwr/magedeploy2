@@ -1,5 +1,7 @@
 # MageDeploy2
-Magento2 Deployment Setup using Robo. This repository contains tasks, a base Robo file, configuration etc.
+
+Magento2 Deployment Setup using Robo and Deployer.
+This repository contains tasks, a base Robo file, configuration etc.
 
 ## Getting Started
 
@@ -7,6 +9,7 @@ Magento2 Deployment Setup using Robo. This repository contains tasks, a base Rob
 ### Requirements
 
  * robo
+ * deployer
 
 ### Prerequisites
 
@@ -33,10 +36,7 @@ composer require deployer/deployer
 
 ### Configuration
 
-After the Installation you will find a magedeploy2.php file which is used to gather the configuration for a deployment.
-
-## Contributing
-
+After the installation you need to add a magedeploy2.php file return the configuration array.
 
 ## Versioning
 
@@ -47,12 +47,12 @@ For the versions available, see the [tags on this repository](https://github.com
 
 * **Matthias Walter** - *Initial work* - [mwr](https://github.com/mwr)
 
-See also the list of [contributors](https://github.com/mwr/magedeploy2/contributors) who participated in this project.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
-## Acknowledgments
+## Todo list
 
-* 
+- [ ] add a configuration sample
+- [ ] add more documentation on how to get startet
+
