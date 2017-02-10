@@ -28,7 +28,7 @@ class ValidateEnvironmentTask extends \Robo\Task\BaseTask
     /**
      * @return bool
      */
-    protected function validateExecutables(): bool
+    protected function validateExecutables()
     {
         $configKeys = [
             'env/git_bin',
