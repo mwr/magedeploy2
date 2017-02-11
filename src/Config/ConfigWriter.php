@@ -12,8 +12,6 @@ namespace Mwltr\MageDeploy2\Config;
  */
 class ConfigWriter
 {
-    const FILENAME_CONFIG = 'magedeploy2_test.php';
-
     /**
      * Write Config to file from Config object
      *
@@ -27,7 +25,7 @@ class ConfigWriter
 
         $configFileContent = "<?php\n\nreturn $configArray;";
 
-        file_put_contents(self::FILENAME_CONFIG, $configFileContent);
+        file_put_contents(Config::FILENAME, $configFileContent);
     }
 
     protected function varExport($var, $indent = "")

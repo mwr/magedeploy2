@@ -12,6 +12,8 @@ namespace Mwltr\MageDeploy2\Config;
  */
 class Config
 {
+    const FILENAME = 'magedeploy2.php';
+
     const KEY_ENV = 'env';
     const KEY_DEPLOY = 'deploy';
     const KEY_BUILD = 'build';
