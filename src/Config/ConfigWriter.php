@@ -23,29 +23,29 @@ class ConfigWriter
     {
         $configData = $config->get();
 
-        $configArray = $this->var_export($configData);
+        $configArray = $this->varExport($configData);
 
         $configFileContent = "<?php\n\nreturn $configArray;";
 
         file_put_contents(self::FILENAME_CONFIG, $configFileContent);
     }
 
-    protected function var_export($var, $indent = "")
+    protected function varExport($var, $indent = "")
     {
         $varType = gettype($var);
         if ($varType == 'string') {
             $varOut = addcslashes($var, "\\\$\"\r\n\t\v\f");
             $result = sprintf("'%s'", $varOut);
-            // $result = '"' . $varOut . '"';
         } elseif ($varType == 'array') {
             $indexed = array_keys($var) === range(0, count($var) - 1);
             $r = [];
             foreach ($var as $key => $value) {
-                $varExport = $this->var_export($value, "$indent    ");
-                $subArray = $indexed ? "" : $this->var_export($key) . " => ";
+                $varExport = $this->varExport($value, "$indent    ");
+                $subArray = $indexed ? "" : $this->varExport($key) . " => ";
                 $r[] = "$indent    " . $subArray . $varExport;
             }
-            $result = sprintf("[\n%s\n%s]", implode(",\n", $r), $indent);
+            $subArrayAsString = implode(",\n", $r) . ',';
+            $result = sprintf("[\n%s\n%s]", $subArrayAsString, $indent);
         } elseif ($varType == 'boolean') {
             $result = $var ? "true" : "false";
         } else {
