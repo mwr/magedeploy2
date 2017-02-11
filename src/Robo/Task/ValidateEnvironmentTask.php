@@ -14,17 +14,25 @@ use Robo\Result;
 /**
  * ValidateEnvironmentTask
  */
-class ValidateEnvironmentTask extends \Robo\Task\BaseTask
+class ValidateEnvironmentTask extends AbstractTask
 {
     use ConfigAwareTrait;
 
     public function run()
     {
-        $validation = $this->validateExecutables();
+        $msg = '';
 
-        // @todo validate git repository can be fetched
+        $isExecValid = $this->validateExecutables();
 
-        return Result::success($this);
+        $isGitValid = $this->validateGit();
+
+        if ($isExecValid && $isGitValid) {
+            $result = Result::success($this, $msg);
+        } else {
+            $result = Result::error($this, $msg);
+        }
+
+        return $result;
     }
 
     /**
@@ -40,15 +48,34 @@ class ValidateEnvironmentTask extends \Robo\Task\BaseTask
             Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN,
         ];
 
-        $validation = true;
+        $result = true;
         foreach ($configKeys as $key) {
-            $result = $this->validateConfigValueIsExecutable($key);
-            if ($result === false) {
-                $validation = false;
+            $isExec = $this->validateConfigValueIsExecutable($key);
+            if ($isExec === false) {
+                $result = false;
             }
         }
 
-        return $validation;
+        return $result;
+    }
+
+    protected function validateGit()
+    {
+        $result = true;
+        $gitUrl = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
+        try {
+            $task = $this->taskExec("git ls-remote $gitUrl");
+            $task->printed(false);
+
+            $gitCheckResult = $task->run();
+
+            $this->printTaskSuccess("<info>$gitUrl</info> is accessible");
+        } catch (\Exception $e) {
+            $this->printTaskError("$gitUrl not accessible");
+            $result = false;
+        }
+
+        return $result;
     }
 
     protected function validateConfigValueIsExecutable($key)
