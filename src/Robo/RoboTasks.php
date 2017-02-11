@@ -9,7 +9,7 @@ namespace Mwltr\MageDeploy2\Robo;
 
 use Consolidation\Log\ConsoleLogLevel;
 use Mwltr\MageDeploy2\Config\Config;
-use Mwltr\MageDeploy2\Config\ConfigWriter;
+use Mwltr\MageDeploy2\Robo\Task\GenerateConfigFileTask;
 use Mwltr\MageDeploy2\Robo\Task\ValidateEnvironmentTask;
 use Psr\Log\LoggerAwareInterface;
 
@@ -43,74 +43,16 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $this->stopOnFail(true);
     }
 
-    protected function generateMageDeploy2Config()
+    /**
+     * @return GenerateConfigFileTask
+     */
+    protected function taskGenerateConfigFile()
     {
-        // Gather Config information
-        $this->say('environment configuration');
-        $gitBin = $this->askDefault('git_bin', '/usr/local/bin/git');
-        $phpBin = $this->askDefault('php_bin', '/usr/local/bin/php');
-        $tarBin = $this->askDefault('tar_bin', '/usr/local/bin/gtar');
-        $composerBin = $this->askDefault('composer_bin', '/usr/local/bin/composer.phar');
-        $deployerBin = $this->askDefault('deployer_bin', '/usr/local/bin/deployer.phar');
-
-        $this->say('deploy configuration');
-        $gitUrl = $this->ask('git-url');
-        $appSubDir = '';
-        $gitHasSubDir = $this->askDefault('Is your app composer.json in the root of the vcs', 'y');
-        if ($gitHasSubDir == 'n') {
-            $appSubDir = $this->askDefault('sub-dir', 'src');
-        }
-
-        $this->say('Enter themes to compile for this deployment');
-        $askForTheme = true;
-        $themes = [];
-        while ($askForTheme === true) {
-            $themeCode = $this->askDefault('theme', 'Magento/backend');
-            $themeLang = $this->askDefault('languages', 'en_US,de_DE');
-            $continue = $this->askDefault('add another theme? (y/n)', 'n');
-            $themes[] = [
-                'code' => $themeCode,
-                'languages' => explode(',', $themeLang),
-            ];
-            if ($continue == 'n') {
-                $askForTheme = false;
-            }
-        }
-
-        $this->say('Enter database configuration for build environment');
-        $dbHost = $this->askDefault('db-host', '127.0.0.1');
-        $dbName = $this->askDefault('db-name', '');
-        $dbUser = $this->askDefault('db-user', 'root');
-        $dbPw = $this->askDefault('db-password', '');
-
-        // Create Config data object
-        $config = new Config();
-        $config->set(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN, $gitBin);
-        $config->set(Config::KEY_ENV . '/' . Config::KEY_PHP_BIN, $phpBin);
-        $config->set(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN, $tarBin);
-        $config->set(Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN, $composerBin);
-        $config->set(Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN, $deployerBin);
-
-        $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL, $gitUrl);
-        if (!empty($appSubDir)) {
-            $appdir = $config->get(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR) . '/' . $appSubDir;
-            $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR, $appdir);
-        }
-        $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES, $themes);
-
-        $pathBuildDb = Config::KEY_BUILD . '/' . Config::KEY_DB . '/';
-        $config->set($pathBuildDb . 'db-host', $dbHost);
-        $config->set($pathBuildDb . 'db-name', $dbName);
-        $config->set($pathBuildDb . 'db-user', $dbUser);
-        $config->set($pathBuildDb . 'db-password', $dbPw);
-
-        // Write Config to file
-        $configWriter = new ConfigWriter();
-        $configWriter->write($config);
+        return $this->task(GenerateConfigFileTask::class);
     }
 
     /**
-     * @return \Robo\Collection\CollectionBuilder
+     * @return ValidateEnvironmentTask
      */
     protected function taskDeployCheck()
     {
@@ -422,6 +364,18 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             'timer-label' => 'in',
         ];
         $this->logger->log(ConsoleLogLevel::SUCCESS, "<info>$method</info> finished", $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function task()
+    {
+        $task = call_user_func_array(['parent', 'task'], func_get_args());
+        $task->setInput($this->input());
+        $task->setOutput($this->output());
+
+        return $task;
     }
 
 }

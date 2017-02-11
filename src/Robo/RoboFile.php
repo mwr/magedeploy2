@@ -51,7 +51,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
 
     public function deployInit()
     {
-        $this->generateMageDeploy2Config();
+        $this->taskGenerateConfigFile()->run();
     }
 
     /**
