@@ -9,6 +9,7 @@ namespace Mwltr\MageDeploy2\Robo;
 
 use Consolidation\Log\ConsoleLogLevel;
 use Mwltr\MageDeploy2\Config\Config;
+use Mwltr\MageDeploy2\Robo\Task\AbstractTask;
 use Mwltr\MageDeploy2\Robo\Task\GenerateConfigFileTask;
 use Mwltr\MageDeploy2\Robo\Task\ValidateEnvironmentTask;
 use Psr\Log\LoggerAwareInterface;
@@ -329,6 +330,18 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $task->branch($branch);
         $task->stage($stage);
 
+        // Map Verbosity
+        $output = $this->output();
+        if ($output->isDebug()) {
+            $task->debug();
+        } elseif ($output->isVeryVerbose()) {
+            $task->veryVerbose();
+        } elseif ($output->isVerbose()) {
+            $task->verbose();
+        } elseif ($output->isQuiet()) {
+            $task->quiet();
+        }
+
         return $task;
     }
 
@@ -372,8 +385,10 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function task()
     {
         $task = call_user_func_array(['parent', 'task'], func_get_args());
-        $task->setInput($this->input());
-        $task->setOutput($this->output());
+        if ($task instanceof AbstractTask) {
+            $task->setInput($this->input());
+            $task->setOutput($this->output());
+        }
 
         return $task;
     }
