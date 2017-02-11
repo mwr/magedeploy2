@@ -8,7 +8,6 @@
 namespace Mwltr\MageDeploy2\Robo\Task;
 
 use Mwltr\MageDeploy2\Config\Config;
-use Mwltr\MageDeploy2\Config\ConfigAwareTrait;
 use Mwltr\MageDeploy2\Config\ConfigWriter;
 use Robo\Result;
 
@@ -17,8 +16,6 @@ use Robo\Result;
  */
 class GenerateConfigFileTask extends AbstractTask
 {
-    use ConfigAwareTrait;
-
     public function run()
     {
         // Gather Config information
@@ -55,7 +52,7 @@ class GenerateConfigFileTask extends AbstractTask
 
         $this->say('Enter database configuration for build environment');
         $dbHost = $this->askDefault('db-host', '127.0.0.1');
-        $dbName = $this->askDefault('db-name', '');
+        $dbName = $this->askDefault('db-name', 'magedeploy2_dev');
         $dbUser = $this->askDefault('db-user', 'root');
         $dbPw = $this->askDefault('db-password', '');
 

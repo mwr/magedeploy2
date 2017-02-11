@@ -8,7 +8,8 @@
 namespace Mwltr\MageDeploy2\Robo\Task;
 
 use Mwltr\MageDeploy2\Config\Config;
-use Mwltr\MageDeploy2\Config\ConfigAwareTrait;
+use Mwltr\MageDeploy2\Robo\RoboFile;
+use Robo\Collection\CollectionBuilder;
 use Robo\Result;
 
 /**
@@ -16,8 +17,6 @@ use Robo\Result;
  */
 class ValidateEnvironmentTask extends AbstractTask
 {
-    use ConfigAwareTrait;
-
     public function run()
     {
         $msg = '';
@@ -64,10 +63,12 @@ class ValidateEnvironmentTask extends AbstractTask
         $result = true;
         $gitUrl = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
         try {
-            $task = $this->taskExec("git ls-remote $gitUrl");
-            $task->printed(false);
+            $collection = $this->collectionBuilder();
+            /** @var RoboFile $collection */
+            $collection->taskExec("git ls-remote $gitUrl")->printed(false);
+            /** @var CollectionBuilder $collection */
 
-            $gitCheckResult = $task->run();
+            $gitCheckResult = $collection->run();
 
             $this->printTaskSuccess("<info>$gitUrl</info> is accessible");
         } catch (\Exception $e) {
