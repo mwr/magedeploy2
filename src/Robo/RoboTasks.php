@@ -55,6 +55,11 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 
         $this->say('deploy configuration');
         $gitUrl = $this->ask('git-url');
+        $appSubDir = '';
+        $gitHasSubDir = $this->askDefault('Is your app composer.json in the root of the vcs', 'y');
+        if ($gitHasSubDir == 'n') {
+            $appSubDir = $this->askDefault('sub-dir', 'src');
+        }
 
         $this->say('Enter themes to compile for this deployment');
         $askForTheme = true;
@@ -87,6 +92,10 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $config->set(Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN, $deployerBin);
 
         $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL, $gitUrl);
+        if (!empty($appSubDir)) {
+            $appdir = $config->get(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR) . '/' . $appSubDir;
+            $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR, $appdir);
+        }
         $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES, $themes);
 
         $pathBuildDb = Config::KEY_BUILD . '/' . Config::KEY_DB . '/';
