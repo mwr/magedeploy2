@@ -33,11 +33,11 @@ class ConfigWriter
     protected function var_export($var, $indent = "")
     {
         $varType = gettype($var);
-        if ($varType == "string") {
+        if ($varType == 'string') {
             $varOut = addcslashes($var, "\\\$\"\r\n\t\v\f");
-            $result = sprintf('"%s"', $varOut);
+            $result = sprintf("'%s'", $varOut);
             // $result = '"' . $varOut . '"';
-        } elseif ($varType == "array") {
+        } elseif ($varType == 'array') {
             $indexed = array_keys($var) === range(0, count($var) - 1);
             $r = [];
             foreach ($var as $key => $value) {
@@ -46,7 +46,7 @@ class ConfigWriter
                 $r[] = "$indent    " . $subArray . $varExport;
             }
             $result = sprintf("[\n%s\n%s]", implode(",\n", $r), $indent);
-        } elseif ($varType == "boolean") {
+        } elseif ($varType == 'boolean') {
             $result = $var ? "true" : "false";
         } else {
             $result = var_export($var, true);
