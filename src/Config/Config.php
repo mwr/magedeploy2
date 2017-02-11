@@ -14,7 +14,7 @@ class Config
 {
     const KEY_ENV = 'env';
     const KEY_DEPLOY = 'deploy';
-    const KEY_BUILD = 'magento';
+    const KEY_BUILD = 'build';
 
     const KEY_GIT_BIN = 'git_bin';
     const KEY_PHP_BIN = 'php_bin';
