@@ -12,8 +12,6 @@ namespace Mwltr\MageDeploy2\Config;
  */
 class ConfigReader
 {
-    const FILENAME_CONFIG = 'magedeploy2.php';
-
     /**
      * Read Config from file and initialize Config object
      *
@@ -21,7 +19,7 @@ class ConfigReader
      */
     public function read()
     {
-        $data = include self::FILENAME_CONFIG;
+        $data = include Config::FILENAME;
 
         $config = new Config($data);
 

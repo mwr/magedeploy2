@@ -52,7 +52,6 @@ For the versions available, see the [tags on this repository](https://github.com
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Todo list
-
-- [ ] add a configuration sample
+ 
 - [ ] add more documentation on how to get startet
 

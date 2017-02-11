@@ -44,11 +44,22 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $this->printRuntime(__FUNCTION__);
     }
 
-    public function deployCheck()
+    /**
+     * Validate the deploy setup configuration and executable
+     */
+    public function validate()
     {
-        $this->taskDeployCheck();
+        $this->taskDeployValidate()->run();
     }
-    
+
+    /**
+     * Initialize the configuration file
+     */
+    public function configInit()
+    {
+        $this->taskGenerateConfigFile()->run();
+    }
+
     /**
      * STAGE command to setup / update Magento and its dependencies
      *

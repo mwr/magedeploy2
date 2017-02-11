@@ -13,11 +13,6 @@ namespace Mwltr\MageDeploy2\Config;
 trait ConfigAwareTrait
 {
     /**
-     * @var ConfigReader
-     */
-    protected $deployConfigReader;
-
-    /**
      * @var Config
      */
     protected $deployConfig = null;
@@ -53,23 +48,11 @@ trait ConfigAwareTrait
     }
 
     /**
-     *
+     *  Initialize DeployConfig
      */
     protected function initDeployConfig()
     {
-        $this->deployConfig = $this->getDeployConfigReader()->read();
-    }
-
-    /**
-     * @return ConfigReader
-     */
-    protected function getDeployConfigReader()
-    {
-        if ($this->deployConfigReader === null) {
-            $this->deployConfigReader = new ConfigReader();
-        }
-
-        return $this->deployConfigReader;
+        $this->deployConfig = ConfigRegistry::getDeployConfig();
     }
 
 }

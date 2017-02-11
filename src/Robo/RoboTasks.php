@@ -8,23 +8,30 @@
 namespace Mwltr\MageDeploy2\Robo;
 
 use Consolidation\Log\ConsoleLogLevel;
+use Mwltr\MageDeploy2\Config\Config;
+use Mwltr\MageDeploy2\Config\ConfigAwareTrait;
+use Mwltr\MageDeploy2\Robo\Task\GenerateConfigFileTask;
 use Mwltr\MageDeploy2\Robo\Task\ValidateEnvironmentTask;
+use Mwltr\Robo\Deployer\loadDeployerTasks;
+use Mwltr\Robo\Magento2\loadMagentoTasks;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Robo\Common\Timer as RoboTimer;
 
 /**
  * RoboTasks
  */
 class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 {
-    const MAGENTO_VENDOR_DIR = "vendor";
-    const MAGENTO_PATH_ENV_PHP = "app/etc/env.php";
+    const MAGENTO_VENDOR_DIR = 'vendor';
+    const MAGENTO_PATH_ENV_PHP = 'app/etc/env.php';
 
-    use \Mwltr\MageDeploy2\Config\ConfigAwareTrait;
-    use \Mwltr\Robo\Deployer\loadDeployerTasks;
-    use \Mwltr\Robo\Magento2\loadMagentoTasks;
+    use ConfigAwareTrait;
+    use loadDeployerTasks;
+    use loadMagentoTasks;
 
-    use \Robo\Common\Timer;
-    use \Psr\Log\LoggerAwareTrait;
+    use RoboTimer;
+    use LoggerAwareTrait;
 
     public function __construct()
     {
@@ -41,9 +48,20 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $this->stopOnFail(true);
     }
 
-    protected function taskDeployCheck()
+    /**
+     * @return GenerateConfigFileTask
+     */
+    protected function taskGenerateConfigFile()
     {
-        $this->task(ValidateEnvironmentTask::class)->run();
+        return $this->createTask(GenerateConfigFileTask::class);
+    }
+
+    /**
+     * @return ValidateEnvironmentTask
+     */
+    protected function taskDeployValidate()
+    {
+        return $this->createTask(ValidateEnvironmentTask::class);
     }
 
     /**
@@ -55,8 +73,8 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskUpdateSourceCode($branch)
     {
-        $repo = $this->config('deploy/git_url');
-        $gitDir = $this->config('deploy/git_dir');
+        $repo = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
+        $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
 
         $collection = $this->collectionBuilder();
 
@@ -96,8 +114,8 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoCleanVarDirs()
     {
-        $magentoDir = $this->config('deploy/magento_dir');
-        $varDirs = $this->config('deploy/clean_dirs');
+        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
+        $varDirs = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_CLEAN_DIRS);
 
         $dirs = [];
         foreach ($varDirs as $dir) {
@@ -126,12 +144,11 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoUpdateDependencies($dropVendor = false)
     {
-        $magentoDir = $this->config('deploy/magento_dir');
-        $pathToComposer = $this->config('env/composer_bin');
+        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
+        $pathToComposer = $this->config(Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN);
 
         $collection = $this->collectionBuilder();
         if ($dropVendor === true) {
-            $magentoDir = $this->config('deploy/magento_dir');
             $vendorDir = self::MAGENTO_VENDOR_DIR;
             $dir = "$magentoDir/$vendorDir";
             $task = $this->taskDeleteDir($dir);
@@ -158,7 +175,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoSetup($reinstallProject = false)
     {
-        $magentoDir = $this->config('deploy/magento_dir');
+        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
         $pathEnvPhp = self::MAGENTO_PATH_ENV_PHP;
         $envPhpFile = "$magentoDir/$pathEnvPhp";
 
@@ -199,7 +216,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoSetProductionMode()
     {
-        $magentoDir = $this->config('deploy/magento_dir');
+        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
 
         $task = $this->taskMagentoDeploySetModeTask();
         $task->modeProduction();
@@ -216,7 +233,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoSetupDiCompile()
     {
-        $magentoDir = $this->config('deploy/magento_dir');
+        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
 
         $task = $this->taskMagentoSetupDiCompileTask();
         $task->dir($magentoDir);
@@ -231,15 +248,19 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoSetupStaticContentDeploy()
     {
-        $magentoDir = $this->config('deploy/magento_dir');
         /** @var array $themes */
-        $themes = $this->config('deploy/themes');
+        $themes = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES);
+        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
 
         $collection = $this->collectionBuilder();
-        foreach ($themes as $theme => $languages) {
+        foreach ($themes as $theme) {
+            if (!array_key_exists('code', $theme)) {
+                throw new \RuntimeException('invalid theme config: code is missing');
+            }
+
             $task = $this->taskMagentoSetupStaticContentDeployTask();
-            $task->addTheme($theme);
-            $task->addLanguages($languages);
+            $task->addTheme($theme['code']);
+            $task->addLanguages($theme['languages']);
             $task->dir($magentoDir);
 
             $collection->addTask($task);
@@ -255,11 +276,12 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskArtifactCreatePackages()
     {
-        $tarBin = $this->config('env/tar_bin');
-        $gitDir = $this->config('deploy/git_dir');
-        $magentoDir = $this->config('deploy/magento_dir');
+        $tarBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN);
+        $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
+        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
+
         /** @var array $assets */
-        $assets = $this->config('deploy/assets');
+        $assets = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ASSETS);
 
         $collection = $this->collectionBuilder();
         $collection->progressMessage('cleanup old packages');
@@ -306,11 +328,23 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskDeployerDeploy($stage, $branch)
     {
-        $deployerBin = $this->config('env/deployer_bin');
+        $deployerBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN);
 
         $task = $this->taskDeployerDeployTask($deployerBin);
         $task->branch($branch);
         $task->stage($stage);
+
+        // Map Verbosity
+        $output = $this->output();
+        if ($output->isDebug()) {
+            $task->debug();
+        } elseif ($output->isVeryVerbose()) {
+            $task->veryVerbose();
+        } elseif ($output->isVerbose()) {
+            $task->verbose();
+        } elseif ($output->isQuiet()) {
+            $task->quiet();
+        }
 
         return $task;
     }
@@ -347,6 +381,15 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             'timer-label' => 'in',
         ];
         $this->logger->log(ConsoleLogLevel::SUCCESS, "<info>$method</info> finished", $context);
+    }
+
+    protected function createTask()
+    {
+        $task = call_user_func_array(['parent', 'task'], func_get_args());
+        $task->setInput($this->input());
+        $task->setOutput($this->output());
+
+        return $task;
     }
 
 }
