@@ -84,6 +84,8 @@ class GenerateConfigFileTask extends AbstractTask
         $configWriter = new ConfigWriter();
         $configWriter->write($config);
 
+        $this->say('config has been created');
+
         return Result::success($this);
     }
 
