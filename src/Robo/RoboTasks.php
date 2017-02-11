@@ -56,8 +56,23 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $this->say('deploy configuration');
         $gitUrl = $this->ask('git-url');
 
-        $this->say('Enter database configuration for build environment');
+        $this->say('Enter themes to compile for this deployment');
+        $askForTheme = true;
+        $themes = [];
+        while ($askForTheme === true) {
+            $themeCode = $this->askDefault('theme', 'Magento/backend');
+            $themeLang = $this->askDefault('languages', 'en_US,de_DE');
+            $continue = $this->askDefault('add another theme? (y/n)', 'n');
+            $themes[] = [
+                'code' => $themeCode,
+                'languages' => explode(',', $themeLang),
+            ];
+            if ($continue == 'n') {
+                $askForTheme = false;
+            }
+        }
 
+        $this->say('Enter database configuration for build environment');
         $dbHost = $this->askDefault('db-host', '127.0.0.1');
         $dbName = $this->askDefault('db-name', '');
         $dbUser = $this->askDefault('db-user', 'root');
@@ -72,6 +87,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $config->set(Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN, $deployerBin);
 
         $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL, $gitUrl);
+        $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES, $themes);
 
         $pathBuildDb = Config::KEY_BUILD . '/' . Config::KEY_DB . '/';
         $config->set($pathBuildDb . 'db-host', $dbHost);
@@ -276,16 +292,19 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoSetupStaticContentDeploy()
     {
+        /** @var array $themes */
+        $themes = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES);
         $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
 
-        /** @var array $themes */
-        $themes = $this->config('deploy/themes');
-
         $collection = $this->collectionBuilder();
-        foreach ($themes as $theme => $languages) {
+        foreach ($themes as $theme) {
+            if (!array_key_exists('code', $theme)) {
+                throw new \RuntimeException('invalid theme config: code is missing');
+            }
+
             $task = $this->taskMagentoSetupStaticContentDeployTask();
-            $task->addTheme($theme);
-            $task->addLanguages($languages);
+            $task->addTheme($theme['code']);
+            $task->addLanguages($theme['languages']);
             $task->dir($magentoDir);
 
             $collection->addTask($task);
