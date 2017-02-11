@@ -23,7 +23,7 @@ class Config
     const KEY_DEPLOYER_BIN = 'deployer_bin';
     const KEY_GIT_URL = 'git_url';
     const KEY_GIT_DIR = 'git_dir';
-    const KEY_APP_DIR = 'magento_dir';
+    const KEY_APP_DIR = 'app_dir';
     const KEY_THEMES = 'themes';
     const KEY_ASSETS = 'assets';
     const KEY_CLEAN_DIRS = 'clean_dirs';
