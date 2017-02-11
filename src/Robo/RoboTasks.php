@@ -9,7 +9,6 @@ namespace Mwltr\MageDeploy2\Robo;
 
 use Consolidation\Log\ConsoleLogLevel;
 use Mwltr\MageDeploy2\Config\Config;
-use Mwltr\MageDeploy2\Robo\Task\AbstractTask;
 use Mwltr\MageDeploy2\Robo\Task\GenerateConfigFileTask;
 use Mwltr\MageDeploy2\Robo\Task\ValidateEnvironmentTask;
 use Psr\Log\LoggerAwareInterface;
@@ -49,15 +48,15 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskGenerateConfigFile()
     {
-        return $this->task(GenerateConfigFileTask::class);
+        return $this->createTask(GenerateConfigFileTask::class);
     }
 
     /**
      * @return ValidateEnvironmentTask
      */
-    protected function taskDeployCheck()
+    protected function taskDeployValidate()
     {
-        return $this->task(ValidateEnvironmentTask::class);
+        return $this->createTask(ValidateEnvironmentTask::class);
     }
 
     /**
@@ -379,16 +378,11 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $this->logger->log(ConsoleLogLevel::SUCCESS, "<info>$method</info> finished", $context);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function task()
+    protected function createTask()
     {
         $task = call_user_func_array(['parent', 'task'], func_get_args());
-        if ($task instanceof AbstractTask) {
-            $task->setInput($this->input());
-            $task->setOutput($this->output());
-        }
+        $task->setInput($this->input());
+        $task->setOutput($this->output());
 
         return $task;
     }

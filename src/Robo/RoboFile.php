@@ -44,12 +44,18 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $this->printRuntime(__FUNCTION__);
     }
 
-    public function deployCheck()
+    /**
+     * Validate the deploy setup configuration and executable
+     */
+    public function validate()
     {
-        $this->taskDeployCheck()->run();
+        $this->taskDeployValidate()->run();
     }
 
-    public function deployInit()
+    /**
+     * Initialize the configuration file
+     */
+    public function configInit()
     {
         $this->taskGenerateConfigFile()->run();
     }
