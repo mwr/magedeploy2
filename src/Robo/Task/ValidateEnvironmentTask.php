@@ -7,6 +7,8 @@
 
 namespace Mwltr\MageDeploy2\Robo\Task;
 
+use Mwltr\MageDeploy2\Config\Config;
+use Mwltr\MageDeploy2\Config\ConfigAwareTrait;
 use Robo\Result;
 
 /**
@@ -14,7 +16,7 @@ use Robo\Result;
  */
 class ValidateEnvironmentTask extends \Robo\Task\BaseTask
 {
-    use \Mwltr\MageDeploy2\Config\ConfigAwareTrait;
+    use ConfigAwareTrait;
 
     public function run()
     {
@@ -31,11 +33,11 @@ class ValidateEnvironmentTask extends \Robo\Task\BaseTask
     protected function validateExecutables()
     {
         $configKeys = [
-            'env/git_bin',
-            'env/php_bin',
-            'env/tar_bin',
-            'env/composer_bin',
-            'env/deployer_bin',
+            Config::KEY_ENV . '/' . Config::KEY_GIT_BIN,
+            Config::KEY_ENV . '/' . Config::KEY_PHP_BIN,
+            Config::KEY_ENV . '/' . Config::KEY_TAR_BIN,
+            Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN,
+            Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN,
         ];
 
         $validation = true;
