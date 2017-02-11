@@ -9,24 +9,29 @@ namespace Mwltr\MageDeploy2\Robo;
 
 use Consolidation\Log\ConsoleLogLevel;
 use Mwltr\MageDeploy2\Config\Config;
+use Mwltr\MageDeploy2\Config\ConfigAwareTrait;
 use Mwltr\MageDeploy2\Robo\Task\GenerateConfigFileTask;
 use Mwltr\MageDeploy2\Robo\Task\ValidateEnvironmentTask;
+use Mwltr\Robo\Deployer\loadDeployerTasks;
+use Mwltr\Robo\Magento2\loadMagentoTasks;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Robo\Common\Timer as RoboTimer;
 
 /**
  * RoboTasks
  */
 class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 {
-    const MAGENTO_VENDOR_DIR = "vendor";
-    const MAGENTO_PATH_ENV_PHP = "app/etc/env.php";
+    const MAGENTO_VENDOR_DIR = 'vendor';
+    const MAGENTO_PATH_ENV_PHP = 'app/etc/env.php';
 
-    use \Mwltr\MageDeploy2\Config\ConfigAwareTrait;
-    use \Mwltr\Robo\Deployer\loadDeployerTasks;
-    use \Mwltr\Robo\Magento2\loadMagentoTasks;
+    use ConfigAwareTrait;
+    use loadDeployerTasks;
+    use loadMagentoTasks;
 
-    use \Robo\Common\Timer;
-    use \Psr\Log\LoggerAwareTrait;
+    use RoboTimer;
+    use LoggerAwareTrait;
 
     public function __construct()
     {
