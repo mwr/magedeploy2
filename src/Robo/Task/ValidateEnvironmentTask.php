@@ -12,7 +12,7 @@ use Mwltr\MageDeploy2\Config\ConfigAwareTrait;
 use Robo\Result;
 
 /**
- * ValidateEnvironment
+ * ValidateEnvironmentTask
  */
 class ValidateEnvironmentTask extends \Robo\Task\BaseTask
 {
