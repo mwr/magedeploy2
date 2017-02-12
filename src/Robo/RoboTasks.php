@@ -16,6 +16,7 @@ use Mwltr\Robo\Deployer\loadDeployerTasks;
 use Mwltr\Robo\Magento2\loadMagentoTasks;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Robo\Collection\CollectionBuilder;
 use Robo\Common\Timer as RoboTimer;
 
 /**
@@ -81,14 +82,10 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         if (!is_dir($gitDir)) {
             $task = $this->taskGitStack();
             $task->cloneRepo($repo, $gitDir);
-
-            $collection->addTask($task);
-
         } else {
             $task = $this->taskGitStack();
             $task->dir($gitDir);
             $task->exec(['fetch', '-vp', 'origin']);
-            $collection->addTask($task);
 
             $task = $this->taskGitStack();
             $task->dir($gitDir);
@@ -100,8 +97,6 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $task->exec(['reset', '--hard', $branch]);
             // @todo check if it is a branch or tag
             // exec("git reset --hard origin/$branch");
-
-            $collection->addTask($task);
         }
 
         return $collection;
@@ -130,9 +125,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $dirs[] = $dirPath;
         }
 
-        $task = $this->taskCleanDir($dirs);
-
-        return $task;
+        return $this->taskCleanDir($dirs);
     }
 
     /**
@@ -147,21 +140,18 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
         $pathToComposer = $this->config(Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN);
 
+        /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
         if ($dropVendor === true) {
             $vendorDir = self::MAGENTO_VENDOR_DIR;
             $dir = "$magentoDir/$vendorDir";
-            $task = $this->taskDeleteDir($dir);
-
-            $collection->addTask($task);
+            $collection->taskDeleteDir($dir);
         }
 
-        $task = $this->taskComposerInstall($pathToComposer);
+        $task = $collection->taskComposerInstall($pathToComposer);
         $task->dir($magentoDir);
         $task->noDev();
         $task->optimizeAutoloader();
-
-        $collection->addTask($task);
 
         return $collection;
     }
@@ -179,32 +169,30 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $pathEnvPhp = self::MAGENTO_PATH_ENV_PHP;
         $envPhpFile = "$magentoDir/$pathEnvPhp";
 
+        /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
 
         $hasEnvPhp = is_file($envPhpFile);
 
         // Reinstall Project
         if ($reinstallProject === true && $hasEnvPhp) {
-            $taskDeleteEnvPhp = $this->taskFilesystemStack();
+            $taskDeleteEnvPhp = $collection->taskFilesystemStack();
             $taskDeleteEnvPhp->remove($envPhpFile);
 
             $collection->progressMessage("delete $envPhpFile");
-            $collection->addTask($taskDeleteEnvPhp);
             $hasEnvPhp = false;
         }
 
         if (!$hasEnvPhp) {
             $options = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB);
 
-            $task = $this->taskMagentoSetupInstallTask();
+            $task = $collection->taskMagentoSetupInstallTask();
             $task->options($options);
             $task->dir($magentoDir);
-            $collection->addTask($task);
         }
 
-        $task = $this->taskMagentoSetupUpgradeTask();
+        $task = $collection->taskMagentoSetupUpgradeTask();
         $task->dir($magentoDir);
-        $collection->addTask($task);
 
         return $collection;
     }
@@ -245,6 +233,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      * Build Task to run magento setup static content deploy
      *
      * @return \Robo\Collection\CollectionBuilder
+     * @throws \RuntimeException
      */
     protected function taskMagentoSetupStaticContentDeploy()
     {
@@ -252,18 +241,17 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $themes = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES);
         $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
 
+        /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
         foreach ($themes as $theme) {
             if (!array_key_exists('code', $theme)) {
                 throw new \RuntimeException('invalid theme config: code is missing');
             }
 
-            $task = $this->taskMagentoSetupStaticContentDeployTask();
+            $task = $collection->taskMagentoSetupStaticContentDeployTask();
             $task->addTheme($theme['code']);
             $task->addLanguages($theme['languages']);
             $task->dir($magentoDir);
-
-            $collection->addTask($task);
         }
 
         return $collection;
@@ -283,6 +271,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         /** @var array $assets */
         $assets = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ASSETS);
 
+        /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
         $collection->progressMessage('cleanup old packages');
 
@@ -290,10 +279,8 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         foreach ($assets as $assetName => $assetConfig) {
             $file = "$magentoDir/$assetName";
 
-            $task = $this->taskFilesystemStack();
+            $task = $collection->taskFilesystemStack();
             $task->remove($file);
-
-            $collection->addTask($task);
         }
 
         // Create Tars
@@ -309,10 +296,8 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             }
 
             $tarCmd = "$tarBin $tarOptions -czf $assetName $dir";
-            $task = $this->taskExec($tarCmd);
+            $task = $collection->taskExec($tarCmd);
             $task->dir($gitDir);
-
-            $collection->addTask($task);
         }
 
         return $collection;
