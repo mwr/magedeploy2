@@ -77,17 +77,18 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $repo = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
 
+        /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
 
         if (!is_dir($gitDir)) {
-            $task = $this->taskGitStack();
+            $task = $collection->taskGitStack();
             $task->cloneRepo($repo, $gitDir);
         } else {
-            $task = $this->taskGitStack();
+            $task = $collection->taskGitStack();
             $task->dir($gitDir);
             $task->exec(['fetch', '-vp', 'origin']);
 
-            $task = $this->taskGitStack();
+            $task = $collection->taskGitStack();
             $task->dir($gitDir);
             $task->exec(['checkout', '-f', $branch]);
 
