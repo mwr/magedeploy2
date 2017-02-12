@@ -69,42 +69,15 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      *
      * @param $branch
      *
-     * @return \Robo\Collection\CollectionBuilder
+     * @return \Mwltr\MageDeploy2\Robo\Task\UpdateSourceCodeTask
      */
     protected function taskUpdateSourceCode($branch)
     {
-        $repo = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
-        $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
+        /** @var \Mwltr\MageDeploy2\Robo\Task\UpdateSourceCodeTask $task */
+        $task = $this->createTask(\Mwltr\MageDeploy2\Robo\Task\UpdateSourceCodeTask::class);
+        $task->branch($branch);
 
-        $collection = $this->collectionBuilder();
-
-        if (!is_dir($gitDir)) {
-            $task = $this->taskGitStack();
-            $task->cloneRepo($repo, $gitDir);
-
-            $collection->addTask($task);
-
-        } else {
-            $task = $this->taskGitStack();
-            $task->dir($gitDir);
-            $task->exec(['fetch', '-vp', 'origin']);
-            $collection->addTask($task);
-
-            $task = $this->taskGitStack();
-            $task->dir($gitDir);
-            $task->exec(['checkout', '-f', $branch]);
-
-            $collection->addTask($task);
-            $task = $this->taskGitStack();
-            $task->dir($gitDir);
-            $task->exec(['reset', '--hard', $branch]);
-            // @todo check if it is a branch or tag
-            // exec("git reset --hard origin/$branch");
-
-            $collection->addTask($task);
-        }
-
-        return $collection;
+        return $task;
     }
 
     /**
