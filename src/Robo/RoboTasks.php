@@ -81,27 +81,50 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $collection = $this->collectionBuilder();
 
         if (!is_dir($gitDir)) {
+            // Clone Repo
             $task = $collection->taskGitStack();
             $task->cloneRepo($repo, $gitDir);
         } else {
+            // Fetch origin
             $task = $collection->taskGitStack();
             $task->dir($gitDir);
             $task->exec(['fetch', '-vp', 'origin']);
 
+            // Gather Tag information
+            $task = $this->taskGitStack();
+            $task->dir($gitDir);
+            $task->exec(['show-ref', '--tags']);
+            $result = $task->run();
+
+            $output = $result->getOutputData();
+            $tags = [];
+            $tagRefs = explode("\n", $output);
+            foreach ($tagRefs as $tagRefData) {
+                if (empty($tagRefData)) {
+                    continue;
+                }
+                $tagData = explode('/', $tagRefData);
+                $tag = array_pop($tagData);
+                $tags[$tag] = $tag;
+            }
+
+            $isTag = array_key_exists($branch, $tags);
+
+            // Checkout branch or tag
             $task = $collection->taskGitStack();
             $task->dir($gitDir);
             $task->exec(['checkout', '-f', $branch]);
 
+            // Reset to origin Branch / Tag
+            $resetTo = $isTag ? $branch : "origin/$branch";
+
             $task = $collection->taskGitStack();
             $task->dir($gitDir);
-            $task->exec(['reset', '--hard', "origin/$branch"]);
-            // @todo check if it is a branch or tag
-            // exec("git reset --hard origin/$branch");
+            $task->exec(['reset', '--hard', $resetTo]);
 
             $task = $collection->taskGitStack();
             $task->dir($gitDir);
             $task->exec(['status']);
-
         }
 
         return $collection;
