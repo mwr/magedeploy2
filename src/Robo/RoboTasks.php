@@ -92,12 +92,16 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $task->dir($gitDir);
             $task->exec(['checkout', '-f', $branch]);
 
-            $collection->addTask($task);
-            $task = $this->taskGitStack();
+            $task = $collection->taskGitStack();
             $task->dir($gitDir);
-            $task->exec(['reset', '--hard', $branch]);
+            $task->exec(['reset', '--hard', "origin/$branch"]);
             // @todo check if it is a branch or tag
             // exec("git reset --hard origin/$branch");
+
+            $task = $collection->taskGitStack();
+            $task->dir($gitDir);
+            $task->exec(['status']);
+
         }
 
         return $collection;
