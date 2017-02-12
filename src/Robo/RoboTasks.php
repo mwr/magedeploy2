@@ -194,7 +194,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         }
 
         if (!$hasEnvPhp) {
-            $options = $this->config('magento/db');
+            $options = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB);
 
             $task = $this->taskMagentoSetupInstallTask();
             $task->options($options);

@@ -39,6 +39,8 @@ class ValidateEnvironmentTask extends AbstractTask
      */
     protected function validateExecutables()
     {
+        $this->yell('VALIDATING EXECUTABLES', 40, 'blue');
+
         $configKeys = [
             Config::KEY_ENV . '/' . Config::KEY_GIT_BIN,
             Config::KEY_ENV . '/' . Config::KEY_PHP_BIN,
@@ -60,6 +62,8 @@ class ValidateEnvironmentTask extends AbstractTask
 
     protected function validateGit()
     {
+        $this->yell('VALIDATING GIT ACCESS', 40, 'blue');
+
         $result = true;
         $gitUrl = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
         try {
@@ -70,9 +74,9 @@ class ValidateEnvironmentTask extends AbstractTask
 
             $gitCheckResult = $collection->run();
 
-            $this->printTaskSuccess("<info>$gitUrl</info> is accessible");
+            $this->say("git_url <info>$gitUrl</info> is accessible");
         } catch (\Exception $e) {
-            $this->printTaskError("$gitUrl not accessible");
+            $this->yell("git_url '$gitUrl' is not accessible", 40, 'red');
             $result = false;
         }
 
@@ -102,10 +106,10 @@ class ValidateEnvironmentTask extends AbstractTask
         $result = false;
 
         if (is_file($bin) && is_executable($bin)) {
-            $this->printTaskSuccess("<info>$bin</info> is executable");
+            $this->say("<info>$bin</info> is executable");
             $result = true;
         } else {
-            $this->printTaskError("$bin not executable");
+            $this->yell("$bin not executable", 40, 'red');
         }
 
         return $result;
