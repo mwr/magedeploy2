@@ -297,6 +297,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $tarBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN);
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
         $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
+        $artifactsDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS_DIR);
 
         /** @var array $assets */
         $assets = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ASSETS);
@@ -307,7 +308,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 
         // Cleanup old tars
         foreach ($assets as $assetName => $assetConfig) {
-            $file = "$magentoDir/$assetName";
+            $file = "$artifactsDir/$assetName";
 
             $task = $collection->taskFilesystemStack();
             $task->remove($file);
@@ -318,6 +319,8 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         foreach ($assets as $assetName => $assetConfig) {
             $dir = $assetConfig['dir'];
 
+            $assetPath = "../$artifactsDir/$assetName";
+
             $tarOptions = '';
             if (array_key_exists('options', $assetConfig)) {
                 $options = $assetConfig['options'];
@@ -325,7 +328,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
                 $tarOptions = implode(' ', $options);
             }
 
-            $tarCmd = "$tarBin $tarOptions -czf $assetName $dir";
+            $tarCmd = "$tarBin $tarOptions -czf $assetPath $dir";
             $task = $collection->taskExec($tarCmd);
             $task->dir($gitDir);
         }
