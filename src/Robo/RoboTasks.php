@@ -80,10 +80,12 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
 
-        if (!is_dir($gitDir)) {
+        $isFirstRun = !is_dir($gitDir);
+        if ($isFirstRun) {
             // Clone Repo
-            $task = $collection->taskGitStack();
+            $task = $this->taskGitStack();
             $task->cloneRepo($repo, $gitDir);
+            $task->run();
         }
 
         // Fetch origin
