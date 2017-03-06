@@ -80,52 +80,54 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
 
-        if (!is_dir($gitDir)) {
+        $isFirstRun = !is_dir($gitDir);
+        if ($isFirstRun) {
             // Clone Repo
-            $task = $collection->taskGitStack();
-            $task->cloneRepo($repo, $gitDir);
-        } else {
-            // Fetch origin
-            $task = $collection->taskGitStack();
-            $task->dir($gitDir);
-            $task->exec(['fetch', '-vp', 'origin']);
-
-            // Gather Tag information
             $task = $this->taskGitStack();
-            $task->dir($gitDir);
-            $task->exec(['show-ref', '--tags']);
-            $result = $task->run();
-
-            $output = $result->getOutputData();
-            $tags = [];
-            $tagRefs = explode("\n", $output);
-            foreach ($tagRefs as $tagRefData) {
-                if (empty($tagRefData)) {
-                    continue;
-                }
-                $tagData = explode('/', $tagRefData);
-                $tag = array_pop($tagData);
-                $tags[$tag] = $tag;
-            }
-
-            $isTag = array_key_exists($branch, $tags);
-
-            // Checkout branch or tag
-            $task = $collection->taskGitStack();
-            $task->dir($gitDir);
-            $task->exec(['checkout', '-f', $branch]);
-
-            // Reset to origin Branch / Tag
-            $resetTo = $isTag ? $branch : "origin/$branch";
-
-            $task = $collection->taskGitStack();
-            $task->dir($gitDir);
-            $task->exec(['reset', '--hard', $resetTo]);
-
-            $task = $collection->taskGitStack();
-            $task->dir($gitDir);
-            $task->exec(['status']);
+            $task->cloneRepo($repo, $gitDir);
+            $task->run();
         }
+
+        // Fetch origin
+        $task = $collection->taskGitStack();
+        $task->dir($gitDir);
+        $task->exec(['fetch', '-vp', 'origin']);
+
+        // Gather Tag information
+        $task = $this->taskGitStack();
+        $task->dir($gitDir);
+        $task->exec(['show-ref', '--tags']);
+        $result = $task->run();
+
+        $output = $result->getOutputData();
+        $tags = [];
+        $tagRefs = explode("\n", $output);
+        foreach ($tagRefs as $tagRefData) {
+            if (empty($tagRefData)) {
+                continue;
+            }
+            $tagData = explode('/', $tagRefData);
+            $tag = array_pop($tagData);
+            $tags[$tag] = $tag;
+        }
+
+        $isTag = array_key_exists($branch, $tags);
+
+        // Checkout branch or tag
+        $task = $collection->taskGitStack();
+        $task->dir($gitDir);
+        $task->exec(['checkout', '-f', $branch]);
+
+        // Reset to origin Branch / Tag
+        $resetTo = $isTag ? $branch : "origin/$branch";
+
+        $task = $collection->taskGitStack();
+        $task->dir($gitDir);
+        $task->exec(['reset', '--hard', $resetTo]);
+
+        $task = $collection->taskGitStack();
+        $task->dir($gitDir);
+        $task->exec(['status']);
 
         return $collection;
     }
@@ -295,6 +297,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $tarBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN);
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
         $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
+        $artifactsDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS_DIR);
 
         /** @var array $assets */
         $assets = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ASSETS);
@@ -305,7 +308,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 
         // Cleanup old tars
         foreach ($assets as $assetName => $assetConfig) {
-            $file = "$magentoDir/$assetName";
+            $file = "$artifactsDir/$assetName";
 
             $task = $collection->taskFilesystemStack();
             $task->remove($file);
@@ -316,6 +319,8 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         foreach ($assets as $assetName => $assetConfig) {
             $dir = $assetConfig['dir'];
 
+            $assetPath = "../$artifactsDir/$assetName";
+
             $tarOptions = '';
             if (array_key_exists('options', $assetConfig)) {
                 $options = $assetConfig['options'];
@@ -323,7 +328,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
                 $tarOptions = implode(' ', $options);
             }
 
-            $tarCmd = "$tarBin $tarOptions -czf $assetName $dir";
+            $tarCmd = "$tarBin $tarOptions -czf $assetPath $dir";
             $task = $collection->taskExec($tarCmd);
             $task->dir($gitDir);
         }

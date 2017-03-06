@@ -26,6 +26,7 @@ class Config
     const KEY_GIT_URL = 'git_url';
     const KEY_GIT_DIR = 'git_dir';
     const KEY_APP_DIR = 'app_dir';
+    const KEY_ARTIFACTS_DIR = 'artifacts_dir';
     const KEY_THEMES = 'themes';
     const KEY_ASSETS = 'assets';
     const KEY_CLEAN_DIRS = 'clean_dirs';
@@ -44,6 +45,7 @@ class Config
             self::KEY_GIT_URL => '',
             self::KEY_GIT_DIR => 'shop',
             self::KEY_APP_DIR => 'shop',
+            self::KEY_ARTIFACTS_DIR => 'artifacts',
             self::KEY_THEMES => [
                 'Magento/luma' => [
                     'de_DE',
