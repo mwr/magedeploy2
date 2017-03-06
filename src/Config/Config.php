@@ -57,11 +57,11 @@ class Config
                 ],
             ],
             self::KEY_ASSETS => [
-                'var_di.tar.gz' => ['dir' => 'src/var/di'],
-                'var_generation.tar.gz' => ['dir' => 'src/var/generation'],
-                'pub_static.tar.gz' => ['dir' => 'src/pub/static'],
+                'var_di.tar.gz' => ['dir' => 'var/di'],
+                'var_generation.tar.gz' => ['dir' => 'var/generation'],
+                'pub_static.tar.gz' => ['dir' => 'pub/static'],
                 'shop.tar.gz' => [
-                    'dir' => 'src',
+                    'dir' => '.',
                     'options' => [
                         '--exclude-vcs',
                         // '--exclude-from=artifact.ignore',
