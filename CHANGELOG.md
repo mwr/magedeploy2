@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 1.1.4
+## 1.2.0
 
 - add artifacts_dir to upload packages from
 - run git clone independently if repo has not been cloned
