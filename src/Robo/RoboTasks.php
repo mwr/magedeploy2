@@ -299,16 +299,16 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
         $artifactsDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS_DIR);
 
-        /** @var array $assets */
-        $assets = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS);
+        /** @var array $artifacts */
+        $artifacts = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS);
 
         /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
         $collection->progressMessage('cleanup old packages');
 
         // Cleanup old tars
-        foreach ($assets as $assetName => $assetConfig) {
-            $file = "$artifactsDir/$assetName";
+        foreach ($artifacts as $artifactName => $artifactConfig) {
+            $file = "$artifactsDir/$artifactName";
 
             $task = $collection->taskFilesystemStack();
             $task->remove($file);
@@ -316,19 +316,19 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 
         // Create Tars
         $collection->progressMessage('creating packages');
-        foreach ($assets as $assetName => $assetConfig) {
-            $dir = $assetConfig['dir'];
+        foreach ($artifacts as $artifactName => $artifactConfig) {
+            $dir = $artifactConfig['dir'];
 
-            $assetPath = "../$artifactsDir/$assetName";
+            $artifactPath = "../$artifactsDir/$artifactName";
 
             $tarOptions = '';
-            if (array_key_exists('options', $assetConfig)) {
-                $options = $assetConfig['options'];
+            if (array_key_exists('options', $artifactConfig)) {
+                $options = $artifactConfig['options'];
 
                 $tarOptions = implode(' ', $options);
             }
 
-            $tarCmd = "$tarBin $tarOptions -czf $assetPath $dir";
+            $tarCmd = "$tarBin $tarOptions -czf $artifactPath $dir";
             $task = $collection->taskExec($tarCmd);
             $task->dir($gitDir);
         }
