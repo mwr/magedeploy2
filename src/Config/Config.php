@@ -28,7 +28,7 @@ class Config
     const KEY_APP_DIR = 'app_dir';
     const KEY_ARTIFACTS_DIR = 'artifacts_dir';
     const KEY_THEMES = 'themes';
-    const KEY_ARTIFACTS = 'assets';
+    const KEY_ARTIFACTS = 'artifacts';
     const KEY_CLEAN_DIRS = 'clean_dirs';
     const KEY_DB = 'db';
 
