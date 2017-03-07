@@ -5,7 +5,7 @@
 - set job number for static content deploy to 16
 - rename assets to artifacts to unify the naming here (update of magedeploy2.php needed)
 
-## 1.1.4
+## 1.2.0
 
 - add artifacts_dir to upload packages from
 - run git clone independently if repo has not been cloned
