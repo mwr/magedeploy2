@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## next
+
+- set job number for static content deploy to 16
+- rename assets to artifacts to unify the naming here (update of magedeploy2.php needed)
+
 ## 1.1.4
 
 - add artifacts_dir to upload packages from

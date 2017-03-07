@@ -281,6 +281,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $task = $collection->taskMagentoSetupStaticContentDeployTask();
             $task->addTheme($theme['code']);
             $task->addLanguages($theme['languages']);
+            $task->jobs(16);
             $task->dir($magentoDir);
         }
 
@@ -296,11 +297,10 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     {
         $tarBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN);
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
-        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
         $artifactsDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS_DIR);
 
         /** @var array $assets */
-        $assets = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ASSETS);
+        $assets = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS);
 
         /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
