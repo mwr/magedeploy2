@@ -33,72 +33,7 @@ class Config
     const KEY_DB = 'db';
 
     /** @var array data array containing the configuration data from the magedeploy2.php file */
-    protected $data = [
-        self::KEY_ENV => [
-            self::KEY_GIT_BIN => '/usr/local/bin/git',
-            self::KEY_PHP_BIN => '/usr/local/bin/php',
-            self::KEY_TAR_BIN => '/usr/local/bin/gtar',
-            self::KEY_COMPOSER_BIN => '/usr/local/bin/composer.phar',
-            self::KEY_DEPLOYER_BIN => '/usr/local/bin/deployer.phar',
-        ],
-        self::KEY_DEPLOY => [
-            self::KEY_GIT_URL => '',
-            self::KEY_GIT_DIR => 'shop',
-            self::KEY_APP_DIR => 'shop',
-            self::KEY_ARTIFACTS_DIR => 'artifacts',
-            self::KEY_THEMES => [
-                'Magento/luma' => [
-                    'de_DE',
-                    'en_US',
-                ],
-                'Magento/backend' => [
-                    'de_DE',
-                    'en_US',
-                ],
-            ],
-            self::KEY_ARTIFACTS => [
-                'var_di.tar.gz' => ['dir' => 'var/di'],
-                'var_generation.tar.gz' => ['dir' => 'var/generation'],
-                'pub_static.tar.gz' => ['dir' => 'pub/static'],
-                'shop.tar.gz' => [
-                    'dir' => '.',
-                    'options' => [
-                        '--exclude-vcs',
-                        // '--exclude-from=artifact.ignore',
-                        '--checkpoint=5000',
-                    ],
-                ],
-            ],
-            self::KEY_CLEAN_DIRS => [
-                'var/cache',
-                'var/di',
-                'var/generation',
-            ],
-        ],
-        self::KEY_BUILD => [
-            self::KEY_DB => [
-                'db-host' => '127.0.0.1',
-                'db-name' => 'magedeploy2_dev',
-                'db-password' => '',
-                'db-user' => 'root',
-                'admin-email' => 'admin@mwltr.de',
-                'admin-firstname' => 'Admin',
-                'admin-lastname' => 'Admin',
-                'admin-password' => 'admin123',
-                'admin-user' => 'admin',
-                'backend-frontname' => 'admin',
-                'base-url' => 'http://magedeploy2_dev',
-                'base-url-secure' => 'https://magedeploy2_dev',
-                'currency' => 'EUR',
-                'language' => 'en_US',
-                'session-save' => 'files',
-                'timezone' => 'Europe/Berlin',
-                'use-rewrites' => '1',
-                'use-secure' => '0',
-                'use-secure-admin' => '0',
-            ],
-        ],
-    ];
+    protected $data = [];
 
     /**
      * Config constructor.
