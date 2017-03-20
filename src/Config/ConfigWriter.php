@@ -24,8 +24,9 @@ class ConfigWriter
         /** @var array $artifacts */
         $artifacts = $config->get(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS);
         $artifactsExport = '';
-        foreach ($artifacts as $artifact) {
-            $artifactsExport .= $this->varExport($artifact) . ",\n";
+        foreach ($artifacts as $artifactName => $artifact) {
+            $artifactVarExport = $this->varExport($artifact);
+            $artifactsExport .= "'$artifactName' => $artifactVarExport,\n";
         }
 
         /** @var array $themes */
