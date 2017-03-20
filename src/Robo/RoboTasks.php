@@ -295,6 +295,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskArtifactCreatePackages()
     {
+        $rootDir = getcwd();
         $tarBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN);
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
         $artifactsDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS_DIR);
@@ -322,7 +323,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         foreach ($artifacts as $artifactName => $artifactConfig) {
             $dir = $artifactConfig['dir'];
 
-            $artifactPath = "../$artifactsDir/$artifactName";
+            $artifactPath = "$rootDir/$artifactsDir/$artifactName";
 
             $tarOptions = '';
             if (array_key_exists('options', $artifactConfig)) {
