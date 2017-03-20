@@ -8,7 +8,9 @@
 namespace Mwltr\MageDeploy2\Robo\Task;
 
 use Mwltr\MageDeploy2\Config\Config;
+use Mwltr\MageDeploy2\Config\ConfigReader;
 use Mwltr\MageDeploy2\Config\ConfigWriter;
+use Mwltr\MageDeploy2\Config\InitDefaultConfigService;
 use Robo\Result;
 
 /**
@@ -19,6 +21,7 @@ class GenerateConfigFileTask extends AbstractTask
     public function run()
     {
         // Gather Config information
+        $this->yell('env');
         $this->say('environment configuration');
         $gitBin = $this->askDefault('git_bin', '/usr/local/bin/git');
         $phpBin = $this->askDefault('php_bin', '/usr/local/bin/php');
@@ -26,6 +29,7 @@ class GenerateConfigFileTask extends AbstractTask
         $composerBin = $this->askDefault('composer_bin', '/usr/local/bin/composer.phar');
         $deployerBin = $this->askDefault('deployer_bin', '/usr/local/bin/deployer.phar');
 
+        $this->yell('deploy');
         $this->say('deploy configuration');
         $gitUrl = $this->ask('git-url');
         $appSubDir = '';
@@ -35,29 +39,36 @@ class GenerateConfigFileTask extends AbstractTask
         }
 
         $this->say('Enter themes to compile for this deployment');
-        $askForTheme = true;
+        $enterThemes = $this->askDefault('Add themes? (y/n)', 'y');
+
         $themes = [];
-        while ($askForTheme === true) {
-            $themeCode = $this->askDefault('theme', 'Magento/backend');
-            $themeLang = $this->askDefault('languages', 'en_US,de_DE');
-            $continue = $this->askDefault('add another theme? (y/n)', 'n');
-            $themes[] = [
-                'code' => $themeCode,
-                'languages' => explode(',', $themeLang),
-            ];
-            if ($continue == 'n') {
-                $askForTheme = false;
+        if ($enterThemes === 'y') {
+            $askForTheme = true;
+            while ($askForTheme === true) {
+                $themeCode = $this->askDefault('theme', 'Magento/backend');
+                $themeLang = $this->askDefault('languages', 'en_US,de_DE');
+                $continue = $this->askDefault('add another theme? (y/n)', 'n');
+                $themes[] = [
+                    'code' => $themeCode,
+                    'languages' => explode(',', $themeLang),
+                ];
+                if ($continue == 'n') {
+                    $askForTheme = false;
+                }
             }
         }
 
+        $this->yell('build');
         $this->say('Enter database configuration for build environment');
         $dbHost = $this->askDefault('db-host', '127.0.0.1');
         $dbName = $this->askDefault('db-name', 'magedeploy2_dev');
         $dbUser = $this->askDefault('db-user', 'root');
         $dbPw = $this->askDefault('db-password', '');
 
+        $configReader = new ConfigReader();
+        $config = $configReader->read(true);
+
         // Create Config data object
-        $config = new Config();
         $config->set(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN, $gitBin);
         $config->set(Config::KEY_ENV . '/' . Config::KEY_PHP_BIN, $phpBin);
         $config->set(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN, $tarBin);
@@ -69,7 +80,9 @@ class GenerateConfigFileTask extends AbstractTask
             $appdir = $config->get(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR) . '/' . $appSubDir;
             $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR, $appdir);
         }
-        $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES, $themes);
+        if ($themes) {
+            $config->set(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES, $themes);
+        }
 
         $pathBuildDb = Config::KEY_BUILD . '/' . Config::KEY_DB . '/';
         $config->set($pathBuildDb . 'db-host', $dbHost);

@@ -17,9 +17,19 @@ class ConfigReader
      *
      * @return Config
      */
-    public function read()
+    public function read($fallbackToDefault = false)
     {
-        $data = include Config::FILENAME;
+        $configFile = Config::FILENAME;
+
+        if (!is_file($configFile)) {
+            if ($fallbackToDefault === false) {
+                return null;
+            }
+
+            $configFile = __DIR__ . '/magedeploy2.default.php';
+        }
+
+        $data = include $configFile;
 
         $config = new Config($data);
 
