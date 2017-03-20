@@ -306,6 +306,9 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $collection = $this->collectionBuilder();
         $collection->progressMessage('cleanup old packages');
 
+        // Ensure artifacts-dir is present
+        $collection->taskFilesystemStack()->mkdir($artifactsDir);
+
         // Cleanup old tars
         foreach ($artifacts as $artifactName => $artifactConfig) {
             $file = "$artifactsDir/$artifactName";
