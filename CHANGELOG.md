@@ -9,6 +9,8 @@
 - improve config writing: use template to generate basic file content
 - improve config reading: fallback to default file if necessary
 - remove default config from config object
+- artifacts array keys are used as artifact names
+- FIX issue during exporting artifacts to magedeploy2.php
 
 ## 1.2.0
 
