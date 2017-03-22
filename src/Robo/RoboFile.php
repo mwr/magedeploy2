@@ -16,6 +16,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
 {
     const OPT_REINSTALL_PROJECT = 'reinstall-project';
     const OPT_DROP_VENDOR = 'drop-vendor';
+    const OPT_DROP_DATABASE = 'drop-database';
 
     /**
      * command to trigger deployment process completly
@@ -30,6 +31,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $opts = [
             self::OPT_REINSTALL_PROJECT => false,
             self::OPT_DROP_VENDOR => false,
+            self::OPT_DROP_DATABASE => false,
         ]
     ) {
         $this->startTimer();
@@ -71,6 +73,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $opts = [
             self::OPT_REINSTALL_PROJECT => false,
             self::OPT_DROP_VENDOR => false,
+            self::OPT_DROP_DATABASE => false,
         ]
     ) {
         $this->startTimer();
@@ -78,6 +81,10 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         // options are always set (Robo)
         $reinstallProject = $opts[self::OPT_REINSTALL_PROJECT];
         $dropVendor = $opts[self::OPT_DROP_VENDOR];
+        $dropDatabase = $opts[self::OPT_DROP_DATABASE];
+        if ($dropDatabase === true) {
+            $reinstallProject = true;
+        }
 
         $this->printStageInfo('MAGENTO SETUP');
 
@@ -89,6 +96,9 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
 
         $this->printTaskInfo('UPDATE COMPOSER');
         $this->taskMagentoUpdateDependencies($dropVendor)->run();
+
+        $this->printTaskInfo('MYSQL PREPARE DATABASE');
+        $this->taskMysqlCreateDatabase($dropDatabase)->run();
 
         $this->printTaskInfo('MAGENTO INSTALL / UPGRADE');
         $this->taskMagentoSetup($reinstallProject)->run();
