@@ -26,6 +26,7 @@ class GenerateConfigFileTask extends AbstractTask
         $gitBin = $this->askDefault('git_bin', '/usr/local/bin/git');
         $phpBin = $this->askDefault('php_bin', '/usr/local/bin/php');
         $tarBin = $this->askDefault('tar_bin', '/usr/local/bin/gtar');
+        $mysqlBin = $this->askDefault('mysql_bin', '/usr/local/bin/mysql');
         $composerBin = $this->askDefault('composer_bin', '/usr/local/bin/composer.phar');
         $deployerBin = $this->askDefault('deployer_bin', '/usr/local/bin/deployer.phar');
 
@@ -72,6 +73,7 @@ class GenerateConfigFileTask extends AbstractTask
         $config->set(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN, $gitBin);
         $config->set(Config::KEY_ENV . '/' . Config::KEY_PHP_BIN, $phpBin);
         $config->set(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN, $tarBin);
+        $config->set(Config::KEY_ENV . '/' . Config::KEY_MYSQL_BIN, $mysqlBin);
         $config->set(Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN, $composerBin);
         $config->set(Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN, $deployerBin);
 

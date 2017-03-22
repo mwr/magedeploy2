@@ -21,6 +21,7 @@ class Config
     const KEY_GIT_BIN = 'git_bin';
     const KEY_PHP_BIN = 'php_bin';
     const KEY_TAR_BIN = 'tar_bin';
+    const KEY_MYSQL_BIN = 'mysql_bin';
     const KEY_COMPOSER_BIN = 'composer_bin';
     const KEY_DEPLOYER_BIN = 'deployer_bin';
     const KEY_GIT_URL = 'git_url';
