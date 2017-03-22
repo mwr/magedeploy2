@@ -2,6 +2,8 @@
 
 ## next
 
+## 1.3.0
+
 - set job number for static content deploy to 16
 - rename assets to artifacts to unify the naming here (update of magedeploy2.php needed)
 - config:init can be run multiple times
