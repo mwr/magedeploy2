@@ -431,7 +431,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $createDatabase->option('-h', $dbHost);
         $createDatabase->option('-u', $dbUser);
         if ($dbPass) {
-            $createDatabase->option('-p', $dbPass);
+            $createDatabase->option("-p$dbPass");
         }
 
         return $createDatabase;
