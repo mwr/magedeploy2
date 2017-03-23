@@ -203,6 +203,14 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
 
+        // Skip database drop and create incase mysql_bin is not set
+        $mysqlBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_MYSQL_BIN);
+        if (empty($mysqlBin)) {
+            $collection->progressMessage('mySQL database managing skipped');
+
+            return $collection;
+        }
+
         // Drop Database
         if ($dropDatabase === true) {
             $taskDropDatabase = $this->taskMysqlCommand();
