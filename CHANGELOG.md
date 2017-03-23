@@ -2,6 +2,8 @@
 
 ## next
 
+## 1.4.0
+
 - add mysql-bin setting to env
 - add automatic create of build db using the build/db configuration
 - add drop-database option (only works with mysql-bin setting)
