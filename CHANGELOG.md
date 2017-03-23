@@ -2,6 +2,8 @@
 
 ## next
 
+- skip mysql database drop and create if mysql_bin is not set
+
 ## 1.3.0
 
 - set job number for static content deploy to 16
