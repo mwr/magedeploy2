@@ -2,6 +2,10 @@
 
 ## next
 
+## 1.4.1
+
+- fix mysql password parameter handover
+
 ## 1.4.0
 
 - add mysql-bin setting to env
