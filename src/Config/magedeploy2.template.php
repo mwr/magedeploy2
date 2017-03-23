@@ -5,6 +5,7 @@ return [
         'git_bin' => getenv('GIT_BIN') ?: '{{GIT_BIN}}',
         'php_bin' => getenv('PHP_BIN') ?: '{{PHP_BIN}}',
         'tar_bin' => getenv('TAR_BIN') ?: '{{TAR_BIN}}',
+        'mysql_bin' => getenv('MYSQL_BIN') ?: '{{MYSQL_BIN}}',
         'composer_bin' => getenv('COMPOSER_BIN') ?: '{{COMPOSER_BIN}}',
         'deployer_bin' => getenv('DEPLOYER_BIN') ?: '{{DEPLOYER_BIN}}',
     ],

@@ -2,6 +2,14 @@
 
 ## next
 
+## 1.4.0
+
+- add mysql-bin setting to env
+- add automatic create of build db using the build/db configuration
+- add drop-database option (only works with mysql-bin setting)
+- skip mysql database drop and create if mysql_bin is not set
+- initalize mysql-bin during config-init
+
 ## 1.3.0
 
 - set job number for static content deploy to 16

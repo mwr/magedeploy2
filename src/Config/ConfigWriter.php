@@ -40,6 +40,7 @@ class ConfigWriter
             '{{GIT_BIN}}' => $config->get(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN),
             '{{PHP_BIN}}' => $config->get(Config::KEY_ENV . '/' . Config::KEY_PHP_BIN),
             '{{TAR_BIN}}' => $config->get(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN),
+            '{{MYSQL_BIN}}' => $config->get(Config::KEY_ENV . '/' . Config::KEY_MYSQL_BIN),
             '{{COMPOSER_BIN}}' => $config->get(Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN),
             '{{DEPLOYER_BIN}}' => $config->get(Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN),
 

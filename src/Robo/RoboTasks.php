@@ -187,6 +187,50 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     }
 
     /**
+     * Build Task to create database
+     *
+     * @param bool $dropDatabase
+     *
+     * @return \Robo\Collection\CollectionBuilder
+     */
+    protected function taskMysqlCreateDatabase($dropDatabase = false)
+    {
+        $dbName = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-name');
+
+        $sqlDropDb = "DROP DATABASE `{$dbName}`";
+        $sqlCreateDb = "CREATE DATABASE IF NOT EXISTS `{$dbName}`";
+
+        /** @var RoboFile|CollectionBuilder $collection */
+        $collection = $this->collectionBuilder();
+
+        // Skip database drop and create incase mysql_bin is not set
+        $mysqlBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_MYSQL_BIN);
+        if (empty($mysqlBin)) {
+            $collection->progressMessage('mySQL database managing skipped');
+
+            return $collection;
+        }
+
+        // Drop Database
+        if ($dropDatabase === true) {
+            $taskDropDatabase = $this->taskMysqlCommand();
+            $taskDropDatabase->option('-e', $sqlDropDb);
+
+            $collection->progressMessage('Drop Database (as requested)');
+            $collection->addTask($taskDropDatabase);
+        }
+
+        // Create DB
+        $createDatabase = $this->taskMysqlCommand();
+        $createDatabase->option('-e', $sqlCreateDb);
+
+        $collection->progressMessage('Create Database');
+        $collection->addTask($createDatabase);
+
+        return $collection;
+    }
+
+    /**
      * Build Task to setup / upgrade Magento database
      *
      * @param bool $reinstallProject
@@ -369,6 +413,28 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         }
 
         return $task;
+    }
+
+    /**
+     * Create a mysql Command
+     *
+     * @return \Robo\Task\Base\Exec
+     */
+    protected function taskMysqlCommand()
+    {
+        $mysqlBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_MYSQL_BIN);
+        $dbHost = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-host');
+        $dbUser = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-user');
+        $dbPass = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-password');
+
+        $createDatabase = $this->taskExec($mysqlBin);
+        $createDatabase->option('-h', $dbHost);
+        $createDatabase->option('-u', $dbUser);
+        if ($dbPass) {
+            $createDatabase->option('-p', $dbPass);
+        }
+
+        return $createDatabase;
     }
 
     /**

@@ -7,6 +7,7 @@ return [
         Config::KEY_GIT_BIN => '/usr/local/bin/git',
         Config::KEY_PHP_BIN => '/usr/local/bin/php',
         Config::KEY_TAR_BIN => '/usr/local/bin/gtar',
+        Config::KEY_MYSQL_BIN => '/usr/local/bin/mysql',
         Config::KEY_COMPOSER_BIN => '/usr/local/bin/composer.phar',
         Config::KEY_DEPLOYER_BIN => '/usr/local/bin/deployer.phar',
     ],
