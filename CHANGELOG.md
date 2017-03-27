@@ -2,6 +2,9 @@
 
 ## next
 
+- add support for .env files (using vlucas/phpdotenv)
+- load .env file if it is present in root-dir of the deploy project
+
 ## 1.4.1
 
 - fix mysql password parameter handover
