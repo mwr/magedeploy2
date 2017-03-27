@@ -11,7 +11,8 @@
     ],
     "require": {
         "mwltr/robo-deployer": "^1.0.0",
-        "mwltr/robo-magento2": "^1.0.0"
+        "mwltr/robo-magento2": "^1.0.0",
+        "vlucas/phpdotenv": "^2.4"
     },
     "autoload": {
         "psr-4": {

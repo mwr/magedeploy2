@@ -34,6 +34,11 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     use RoboTimer;
     use LoggerAwareTrait;
 
+    protected $dotEnvOverload = false;
+
+    /**
+     * RoboTasks constructor.
+     */
     public function __construct()
     {
         $this->init();
@@ -44,9 +49,29 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function init()
     {
+        $this->initEnvironment();
         $this->initDeployConfig();
 
         $this->stopOnFail(true);
+    }
+
+    /**
+     * Initialize Environment variables by .env file
+     *
+     * Overload can be activated by setting $this->dotEnvOverload = true; in your RoboFile
+     */
+    protected function initEnvironment()
+    {
+        $path = getcwd();
+        if (!is_file("$path/.env")) {
+            return;
+        }
+        $dotenv = new \Dotenv\Dotenv($path);
+        if ($this->dotEnvOverload) {
+            $dotenv->overload();
+        } else {
+            $dotenv->load();
+        }
     }
 
     /**
@@ -471,6 +496,13 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $this->logger->log(ConsoleLogLevel::SUCCESS, "<info>$method</info> finished", $context);
     }
 
+    /**
+     * Create a Task and transfer input and output instances
+     *
+     * This is needed if you have task that needs the current input / output
+     *
+     * @return \Robo\Contract\TaskInterface
+     */
     protected function createTask()
     {
         $task = call_user_func_array(['parent', 'task'], func_get_args());
