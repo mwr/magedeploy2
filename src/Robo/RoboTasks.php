@@ -222,7 +222,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     {
         $dbName = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-name');
 
-        $sqlDropDb = "DROP DATABASE `{$dbName}`";
+        $sqlDropDb = "DROP DATABASE IF EXISTS `{$dbName}`";
         $sqlCreateDb = "CREATE DATABASE IF NOT EXISTS `{$dbName}`";
 
         /** @var RoboFile|CollectionBuilder $collection */
