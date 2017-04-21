@@ -69,7 +69,7 @@ class ValidateEnvironmentTask extends AbstractTask
         try {
             $collection = $this->collectionBuilder();
             /** @var RoboFile $collection */
-            $collection->taskExec("git ls-remote $gitUrl")->printed(false);
+            $collection->taskExec("git ls-remote $gitUrl")->printOutput(false);
             /** @var CollectionBuilder $collection */
 
             $gitCheckResult = $collection->run();
