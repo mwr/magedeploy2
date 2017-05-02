@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "mwltr/robo-deployer": "^1.0.0",
+        "mwltr/robo-deployer": "^1.1.2",
         "mwltr/robo-magento2": "^1.0.0",
         "vlucas/phpdotenv": "^2.4"
     },

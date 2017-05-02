@@ -4,6 +4,7 @@
 
 - add support for .env files (using vlucas/phpdotenv)
 - load .env file if it is present in root-dir of the deploy project
+- add support for deployer parallel command execution mode
 
 ## 1.4.1
 

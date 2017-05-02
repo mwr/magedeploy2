@@ -17,6 +17,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
     const OPT_REINSTALL_PROJECT = 'reinstall-project';
     const OPT_DROP_VENDOR = 'drop-vendor';
     const OPT_DROP_DATABASE = 'drop-database';
+    const OPT_DEPLOYER_PARALLEL = 'parallel|p';
 
     /**
      * command to trigger deployment process completly
@@ -24,6 +25,11 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
      * @param string $stage
      * @param string $branch
      * @param array $opts
+     *
+     * @option $reinstall-project Reinstall project by deleting env.php file and running setup:install
+     * @option $drop-vendor Remove the vendor directory
+     * @option $drop-database Drop the Database
+     * @option $parallel Parallel deployment mode for deployer
      */
     public function deploy(
         $stage,
@@ -32,6 +38,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
             self::OPT_REINSTALL_PROJECT => false,
             self::OPT_DROP_VENDOR => false,
             self::OPT_DROP_DATABASE => false,
+            self::OPT_DEPLOYER_PARALLEL => false,
         ]
     ) {
         $this->startTimer();
@@ -67,6 +74,8 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
      *
      * @param string $branch
      * @param array $opts
+     *
+     * @option $parallel activate parallel deployment mode for deployer
      */
     public function deployMagentoSetup(
         $branch,
@@ -137,13 +146,27 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
      *
      * @param string $stage
      * @param string $branch
+     * @param array $opts
      */
-    public function deployDeploy($stage, $branch)
-    {
+    public function deployDeploy(
+        $stage,
+        $branch,
+        $opts = [
+            self::OPT_DEPLOYER_PARALLEL => false,
+        ]
+    ) {
+        $parallelMode = $opts[self::OPT_DEPLOYER_PARALLEL];
+
         $this->startTimer();
 
         $this->printStageInfo('DEPLOYER DEPLOY');
-        $this->taskDeployerDeploy($stage, $branch)->run();
+
+        $task = $this->taskDeployerDeploy($stage, $branch);
+        if ($parallelMode === true) {
+            $task->parallel();
+        }
+
+        $task->run();
 
         $this->stopTimer();
         $this->printRuntime(__FUNCTION__);
