@@ -8,8 +8,8 @@ This repository contains tasks, a base Robo file, configuration etc.
 
 ### Requirements
 
- * robo
- * deployer
+ * [robo](http://robo.li/)
+ * [deployer](https://deployer.org/)
 
 ### Prerequisites
 
