@@ -122,11 +122,23 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $task = $this->taskGitStack();
         $task->dir($gitDir);
         $task->exec(['show-ref', '--tags']);
+
+        // Disable stopOnFail: git tag has exit code 1 in case there are no tags
+        $this->stopOnFail(false);
+        $task->stopOnFail(false);
+
         $result = $task->run();
 
+        // Enable StopOnFail again
+        $this->stopOnFail(true);
+
+        $tagRefs = [];
         $output = $result->getOutputData();
+        if (!empty($output)) {
+            $tagRefs = explode("\n", $output);
+        }
+
         $tags = [];
-        $tagRefs = explode("\n", $output);
         foreach ($tagRefs as $tagRefData) {
             if (empty($tagRefData)) {
                 continue;
