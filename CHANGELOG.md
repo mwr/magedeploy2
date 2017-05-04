@@ -2,9 +2,21 @@
 
 ## next
 
+- TBD
+
+## 1.6.0
+
 - add support for .env files (using vlucas/phpdotenv)
 - load .env file if it is present in root-dir of the deploy project
 - add support for deployer parallel command execution mode
+- prevent repositories without tags from failing
+- Added Version Badge (pull request #1 from @DavidLambauer)
+- Added external links for deployer and robo (pull request #2 from @DavidLambauer)
+- Changed printed() by printOutput() (pull request #5 from @osrecio)
+
+## 1.5.0
+
+- mysql only drop database if it exists
 
 ## 1.4.1
 
