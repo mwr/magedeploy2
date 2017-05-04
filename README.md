@@ -1,4 +1,6 @@
-# MageDeploy2
+[![GitHub version](https://badge.fury.io/gh/mwr%2Fmagedeploy2.svg)](https://badge.fury.io/gh/mwr%2Fmagedeploy2)
+
+# MageDeploy2 
 
 Magento2 Deployment Setup using Robo and Deployer.
 This repository contains tasks, a base Robo file, configuration etc.
@@ -8,8 +10,8 @@ This repository contains tasks, a base Robo file, configuration etc.
 
 ### Requirements
 
- * robo
- * deployer
+ * [robo](http://robo.li/)
+ * [deployer](https://deployer.org/)
 
 ### Prerequisites
 
