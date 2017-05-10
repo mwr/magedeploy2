@@ -22,8 +22,8 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
     /**
      * command to trigger deployment process completly
      *
-     * @param string $stage
-     * @param string $branch
+     * @param string $stage Environment to deploy to (by default: local/staging/production)
+     * @param string $branchOrTag Branch or Tag to deploy
      * @param array $opts
      *
      * @option $reinstall-project Reinstall project by deleting env.php file and running setup:install
@@ -33,7 +33,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
      */
     public function deploy(
         $stage,
-        $branch,
+        $branchOrTag,
         $opts = [
             self::OPT_REINSTALL_PROJECT => false,
             self::OPT_DROP_VENDOR => false,
@@ -43,11 +43,11 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
     ) {
         $this->startTimer();
 
-        $this->deployMagentoSetup($branch, $opts);
+        $this->deployMagentoSetup($branchOrTag, $opts);
 
         $this->deployArtifactsGenerate();
 
-        $this->deployDeploy($stage, $branch);
+        $this->deployDeploy($stage, $branchOrTag);
 
         $this->stopTimer();
         $this->printRuntime(__FUNCTION__);
@@ -72,13 +72,13 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
     /**
      * STAGE command to setup / update Magento and its dependencies
      *
-     * @param string $branch
+     * @param string $branchOrTag Branch or Tag to deploy
      * @param array $opts
      *
      * @option $parallel activate parallel deployment mode for deployer
      */
     public function deployMagentoSetup(
-        $branch,
+        $branchOrTag,
         $opts = [
             self::OPT_REINSTALL_PROJECT => false,
             self::OPT_DROP_VENDOR => false,
@@ -98,7 +98,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $this->printStageInfo('MAGENTO SETUP');
 
         $this->printTaskInfo('UPDATE SOURCE CODE');
-        $this->taskUpdateSourceCode($branch)->run();
+        $this->taskUpdateSourceCode($branchOrTag)->run();
 
         $this->printTaskInfo('CLEAN VAR DIRS');
         $this->taskMagentoCleanVarDirs()->run();
@@ -144,13 +144,13 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
     /**
      * STAGE command triggering release to server using deployer
      *
-     * @param string $stage
-     * @param string $branch
+     * @param string $stage Environment to deploy to (by default: local/staging/production)
+     * @param string $branchOrTag Branch or Tag to deploy
      * @param array $opts
      */
     public function deployDeploy(
         $stage,
-        $branch,
+        $branchOrTag,
         $opts = [
             self::OPT_DEPLOYER_PARALLEL => false,
         ]
@@ -161,7 +161,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
 
         $this->printStageInfo('DEPLOYER DEPLOY');
 
-        $task = $this->taskDeployerDeploy($stage, $branch);
+        $task = $this->taskDeployerDeploy($stage, $branchOrTag);
         if ($parallelMode === true) {
             $task->parallel();
         }
