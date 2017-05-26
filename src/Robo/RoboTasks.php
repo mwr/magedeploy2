@@ -364,6 +364,13 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $task->addLanguages($theme['languages']);
             $task->jobs(16);
             $task->dir($magentoDir);
+
+            $task2 = $collection->taskMagentoSetupStaticContentDeployTask();
+            $task2->addTheme($theme['code']);
+            $task2->addLanguages($theme['languages']);
+            $task2->jobs(16);
+            $task2->dir($magentoDir);
+            $task2->env('HTTPS', 'on');
         }
 
         return $collection;
