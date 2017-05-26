@@ -370,7 +370,20 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $task2->addLanguages($theme['languages']);
             $task2->jobs(16);
             $task2->dir($magentoDir);
+
+            // Enable HTTPS flag
             $task2->env('HTTPS', 'on');
+
+            // Disable all processes so only requireJS is generated in HTTPS mode (the others are not necessary)
+            $task2->noCss();
+            $task2->noFonts();
+            $task2->noHtml();
+            $task2->noHtmlMinify();
+            $task2->noImages();
+            $task2->noJavascript();
+            $task2->noLess();
+            $task2->noMisc();
+
         }
 
         return $collection;
