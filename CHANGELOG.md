@@ -2,7 +2,10 @@
 
 ## next
 
-- TBD
+- more documentation for commands
+    - deploy
+    - deploy:magento-setup
+    - deploy:deploy
 
 ## 1.6.0
 
