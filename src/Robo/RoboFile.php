@@ -155,7 +155,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
             self::OPT_DEPLOYER_PARALLEL => false,
         ]
     ) {
-        $parallelMode = $opts['parallel'];
+        $parallelMode = $opts[self::OPT_DEPLOYER_PARALLEL];
 
         $this->startTimer();
 
