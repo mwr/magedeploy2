@@ -2,6 +2,13 @@
 
 ## next
 
+## 2.0.1
+
+- detect host:port combination in db-host parameter (HEAD -> develop, origin/develop)
+
+## 2.0.0
+
+- update to robo-magento2 2.0.0
 - more documentation for commands
     - deploy
     - deploy:magento-setup
