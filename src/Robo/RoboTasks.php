@@ -464,8 +464,21 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $dbUser = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-user');
         $dbPass = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-password');
 
+        $hostParts = explode(':', $dbHost);
+        $dbPort = null;
+        if (count($hostParts) === 2) {
+            $dbPort = array_pop($hostParts);
+            $dbHost = array_pop($hostParts);
+        }
+
         $createDatabase = $this->taskExec($mysqlBin);
+
         $createDatabase->option('-h', $dbHost);
+
+        if ($dbPort !== null) {
+            $createDatabase->option('-P', $dbPort);
+        }
+
         $createDatabase->option('-u', $dbUser);
         if ($dbPass) {
             $createDatabase->option("-p$dbPass");
