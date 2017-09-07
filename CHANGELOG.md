@@ -2,6 +2,10 @@
 
 ## next
 
+## 2.1.2
+
+- parallelMode has to be accessed with 'parallel'
+
 ## 2.1.1
 
 - pass $opts to deploy to prevent notice on execute
