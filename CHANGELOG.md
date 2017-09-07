@@ -2,7 +2,11 @@
 
 ## next
 
-## 2.0.1
+## 2.1.1
+
+- pass $opts to deploy to prevent notice on execute
+
+## 2.1.0
 
 - detect host:port combination in db-host parameter (HEAD -> develop, origin/develop)
 

@@ -47,7 +47,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
 
         $this->deployArtifactsGenerate();
 
-        $this->deployDeploy($stage, $branchOrTag);
+        $this->deployDeploy($stage, $branchOrTag, $opts);
 
         $this->stopTimer();
         $this->printRuntime(__FUNCTION__);
