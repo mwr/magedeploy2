@@ -274,13 +274,13 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         if (!$hasEnvPhp) {
             $options = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB);
 
-            $task = $collection->taskMagentoSetupInstallTask();
-            $task->options($options);
-            $task->dir($magentoDir);
+            $installTask = $collection->taskMagentoSetupInstallTask();
+            $installTask->options($options);
+            $installTask->dir($magentoDir);
         }
 
-        $task = $collection->taskMagentoSetupUpgradeTask();
-        $task->dir($magentoDir);
+        $upgradeTask = $collection->taskMagentoSetupUpgradeTask();
+        $upgradeTask->dir($magentoDir);
 
         return $collection;
     }
@@ -386,7 +386,6 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $tarOptions = '';
             if (array_key_exists('options', $artifactConfig)) {
                 $options = $artifactConfig['options'];
-
                 $tarOptions = implode(' ', $options);
             }
 
@@ -449,7 +448,6 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         }
 
         $createDatabase = $this->taskExec($mysqlBin);
-
         $createDatabase->option('-h', $dbHost);
 
         if ($dbPort !== null) {
