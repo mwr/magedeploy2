@@ -101,6 +101,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     {
         $repo = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
+        $gitBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN);
 
         /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
@@ -108,17 +109,17 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $isFirstRun = !is_dir($gitDir);
         if ($isFirstRun) {
             // Clone git Repo
-            $cloneRepo = $this->taskGitStack()->cloneRepo($repo, $gitDir);
+            $cloneRepo = $this->taskGitStack($gitBin)->cloneRepo($repo, $gitDir);
             $cloneRepo->run();
         }
 
         // Fetch origin
-        $collection->taskGitStack()->dir($gitDir)->exec(['fetch', '-vp', 'origin']);
+        $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['fetch', '-vp', 'origin']);
 
         // Gather Tag information
         $tagRefs = [];
         // use exec since the output from the task cannot be accessed anymore since AUG-2017
-        exec("git -C $gitDir show-ref --tags", $tagRefs);
+        exec("$gitBin -C $gitDir show-ref --tags", $tagRefs);
 
         $tags = [];
         foreach ($tagRefs as $tagRefData) {
@@ -133,14 +134,14 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $isTag = array_key_exists($branch, $tags);
 
         // Checkout branch or tag
-        $collection->taskGitStack()->dir($gitDir)->exec(['checkout', '-f', $branch]);
+        $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['checkout', '-f', $branch]);
 
         // Reset to origin Branch / Tag
         $resetTo = $isTag ? $branch : "origin/$branch";
 
-        $collection->taskGitStack()->dir($gitDir)->exec(['reset', '--hard', $resetTo]);
+        $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['reset', '--hard', $resetTo]);
 
-        $collection->taskGitStack()->dir($gitDir)->exec(['status']);
+        $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['status']);
 
         return $collection;
     }
