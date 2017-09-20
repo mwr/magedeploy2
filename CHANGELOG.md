@@ -2,6 +2,10 @@
 
 ## next
 
+## 2.2.0
+
+- git checkout for tags works again (no longer using Robo to fetch tags)
+
 ## 2.1.2
 
 - parallelMode has to be accessed with 'parallel'

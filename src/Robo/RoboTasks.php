@@ -101,42 +101,25 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     {
         $repo = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
+        $gitBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN);
 
         /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
 
         $isFirstRun = !is_dir($gitDir);
         if ($isFirstRun) {
-            // Clone Repo
-            $task = $this->taskGitStack();
-            $task->cloneRepo($repo, $gitDir);
-            $task->run();
+            // Clone git Repo
+            $cloneRepo = $this->taskGitStack($gitBin)->cloneRepo($repo, $gitDir);
+            $cloneRepo->run();
         }
 
         // Fetch origin
-        $task = $collection->taskGitStack();
-        $task->dir($gitDir);
-        $task->exec(['fetch', '-vp', 'origin']);
+        $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['fetch', '-vp', 'origin']);
 
         // Gather Tag information
-        $task = $this->taskGitStack();
-        $task->dir($gitDir);
-        $task->exec(['show-ref', '--tags']);
-
-        // Disable stopOnFail: git tag has exit code 1 in case there are no tags
-        $this->stopOnFail(false);
-        $task->stopOnFail(false);
-
-        $result = $task->run();
-
-        // Enable StopOnFail again
-        $this->stopOnFail(true);
-
         $tagRefs = [];
-        $output = $result->getOutputData();
-        if (!empty($output)) {
-            $tagRefs = explode("\n", $output);
-        }
+        // use exec since the output from the task cannot be accessed anymore since AUG-2017
+        exec("$gitBin -C $gitDir show-ref --tags", $tagRefs);
 
         $tags = [];
         foreach ($tagRefs as $tagRefData) {
@@ -151,20 +134,14 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $isTag = array_key_exists($branch, $tags);
 
         // Checkout branch or tag
-        $task = $collection->taskGitStack();
-        $task->dir($gitDir);
-        $task->exec(['checkout', '-f', $branch]);
+        $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['checkout', '-f', $branch]);
 
         // Reset to origin Branch / Tag
         $resetTo = $isTag ? $branch : "origin/$branch";
 
-        $task = $collection->taskGitStack();
-        $task->dir($gitDir);
-        $task->exec(['reset', '--hard', $resetTo]);
+        $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['reset', '--hard', $resetTo]);
 
-        $task = $collection->taskGitStack();
-        $task->dir($gitDir);
-        $task->exec(['status']);
+        $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['status']);
 
         return $collection;
     }
@@ -297,13 +274,13 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         if (!$hasEnvPhp) {
             $options = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB);
 
-            $task = $collection->taskMagentoSetupInstallTask();
-            $task->options($options);
-            $task->dir($magentoDir);
+            $installTask = $collection->taskMagentoSetupInstallTask();
+            $installTask->options($options);
+            $installTask->dir($magentoDir);
         }
 
-        $task = $collection->taskMagentoSetupUpgradeTask();
-        $task->dir($magentoDir);
+        $upgradeTask = $collection->taskMagentoSetupUpgradeTask();
+        $upgradeTask->dir($magentoDir);
 
         return $collection;
     }
@@ -409,7 +386,6 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $tarOptions = '';
             if (array_key_exists('options', $artifactConfig)) {
                 $options = $artifactConfig['options'];
-
                 $tarOptions = implode(' ', $options);
             }
 
@@ -472,7 +448,6 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         }
 
         $createDatabase = $this->taskExec($mysqlBin);
-
         $createDatabase->option('-h', $dbHost);
 
         if ($dbPort !== null) {
