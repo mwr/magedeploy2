@@ -318,6 +318,31 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     }
 
     /**
+     * Build task to update dependencies using composer
+     *
+     * @param bool $dropVendor
+     *
+     * @return \Robo\Collection\CollectionBuilder
+     */
+    protected function taskMagentoDumpAutoload()
+    {
+        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
+        $pathToComposer = $this->config(Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN);
+
+        /** @var RoboFile|CollectionBuilder $collection */
+        $collection = $this->collectionBuilder();
+
+        $task = $collection->taskComposerDumpAutoload($pathToComposer);
+        $task->dir($magentoDir);
+        $task->noDev();
+        $task->optimize();
+
+        // composer dump-autoload --no-dev --optimize
+
+        return $collection;
+    }
+
+    /**
      * Build Task to run magento setup static content deploy
      *
      * @return \Robo\Collection\CollectionBuilder

@@ -131,6 +131,9 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $this->printTaskInfo('MAGENTO SETUP DI COMPILE');
         $this->taskMagentoSetupDiCompile()->run();
 
+        $this->printTaskInfo('COMPOSER DUMP AUTOLOAD');
+        $this->taskMagentoDumpAutoload()->run();
+
         $this->printTaskInfo('MAGENTO SETUP STATIC CONTENT DEPLOY');
         $this->taskMagentoSetupStaticContentDeploy()->run();
 

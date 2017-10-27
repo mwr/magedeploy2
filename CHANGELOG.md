@@ -2,24 +2,25 @@
 
 ## next
 
-- git checkout for tags works again (no longer using Robo to fetch tags)
+- [FIX] git checkout for tags works again (no longer using Robo to fetch tags)
+- [FEATURE] add composer autoload dump to optimize performance
 
 ## 2.1.2
 
-- parallelMode has to be accessed with 'parallel'
+- [FIX] parallelMode has to be accessed with 'parallel'
 
 ## 2.1.1
 
-- pass $opts to deploy to prevent notice on execute
+- [TASK] pass $opts to deploy to prevent notice on execute
 
 ## 2.1.0
 
-- detect host:port combination in db-host parameter (HEAD -> develop, origin/develop)
+- [TASK] detect host:port combination in db-host parameter (HEAD -> develop, origin/develop)
 
 ## 2.0.0
 
-- update to robo-magento2 2.0.0
-- more documentation for commands
+- [TASK] update to robo-magento2 2.0.0
+- [TASK] more documentation for commands
     - deploy
     - deploy:magento-setup
     - deploy:deploy
