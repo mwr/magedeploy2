@@ -2,10 +2,11 @@
 
 ## next
 
+- [FEATURE] add composer autoload dump to optimize performance
+
 ## 2.2.0
 
 - [FIX] git checkout for tags works again (no longer using Robo to fetch tags)
-- [FEATURE] add composer autoload dump to optimize performance
 
 ## 2.1.2
 
