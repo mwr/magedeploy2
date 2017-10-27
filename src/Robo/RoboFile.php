@@ -106,9 +106,12 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $this->printTaskInfo('UPDATE COMPOSER');
         $this->taskMagentoUpdateDependencies($dropVendor)->run();
 
+        // @todo only need if magento < 2.2 or app:config:dump is not used
+        // @todo db on build is optional for deployment of magento 2.2
         $this->printTaskInfo('MYSQL PREPARE DATABASE');
         $this->taskMysqlCreateDatabase($dropDatabase)->run();
 
+        // @todo only need if magento < 2.2 or app:config:dump is not used
         $this->printTaskInfo('MAGENTO INSTALL / UPGRADE');
         $this->taskMagentoSetup($reinstallProject)->run();
 
@@ -125,6 +128,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
 
         $this->printStageInfo('GENERATE ASSETS');
 
+        // @todo only needed if deploy-mode = db
         $this->printTaskInfo('SET PRODUCTION MODE');
         $this->taskMagentoSetProductionMode()->run();
 

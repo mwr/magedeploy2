@@ -341,6 +341,8 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
             $task->addLanguages($theme['languages']);
             $task->jobs(16);
             $task->dir($magentoDir);
+            // @todo only needed if magento-version >= 2.2 or app:config:dump is used
+            // $task->arg('-f');
         }
 
         return $collection;
