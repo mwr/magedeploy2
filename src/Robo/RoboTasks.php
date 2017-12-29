@@ -426,16 +426,24 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      * Build Task for deployer deploy
      *
      * @param string $stage
-     * @param string $branch
+     * @param string $branchOrTag
      *
      * @return \Mwltr\Robo\Deployer\Task\DeployTask
      */
-    protected function taskDeployerDeploy($stage, $branch)
+    protected function taskDeployerDeploy($stage, $branchOrTag)
     {
         $deployerBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN);
 
+        $isTagDeploy = $this->isTag($branchOrTag);
+
         $task = $this->taskDeployerDeployTask($deployerBin);
-        $task->branch($branch);
+
+        if ($isTagDeploy) {
+            $task->tag($branchOrTag);
+        } else {
+            $task->branch($branchOrTag);
+        }
+
         $task->stage($stage);
 
         // Map Verbosity
@@ -537,4 +545,32 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         return $task;
     }
 
+    /**
+     * @param string $branchOrTag
+     * @return bool
+     */
+    protected function isTag($branchOrTag)
+    {
+        $tagList = $this->getTagList();
+
+        return in_array($branchOrTag, $tagList);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getTagList()
+    {
+        $gitBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN);
+
+        $gitTask = $this->taskExec($gitBin);
+        $gitTask->printOutput(false);
+        $gitTask->arg('--no-pager');
+        $gitTask->arg('tag');
+        $gitTask->option('-l');
+        $gitTaskResult = $gitTask->run();
+        $rawTagList = $gitTaskResult->getMessage();
+
+        return explode("\n", $rawTagList);
+    }
 }
