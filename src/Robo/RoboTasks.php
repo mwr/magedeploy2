@@ -37,6 +37,13 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected $dotEnvOverload = false;
 
     /**
+     * used by getTagList to cache the available git tags
+     *
+     * @var array
+     */
+    protected $tags;
+
+    /**
      * RoboTasks constructor.
      */
     public function __construct()
@@ -116,28 +123,11 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         // Fetch origin
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['fetch', '-vp', 'origin']);
 
-        // Gather Tag information
-        $tagRefs = [];
-        // use exec since the output from the task cannot be accessed anymore since AUG-2017
-        exec("$gitBin -C $gitDir show-ref --tags", $tagRefs);
-
-        $tags = [];
-        foreach ($tagRefs as $tagRefData) {
-            if (empty($tagRefData)) {
-                continue;
-            }
-            $tagData = explode('/', $tagRefData);
-            $tag = array_pop($tagData);
-            $tags[$tag] = $tag;
-        }
-
-        $isTag = array_key_exists($branch, $tags);
-
         // Checkout branch or tag
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['checkout', '-f', $branch]);
 
         // Reset to origin Branch / Tag
-        $resetTo = $isTag ? $branch : "origin/$branch";
+        $resetTo = $this->isTag($branch) ? $branch : "origin/$branch";
 
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['reset', '--hard', $resetTo]);
 
@@ -435,7 +425,13 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         $deployerBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_DEPLOYER_BIN);
 
         $task = $this->taskDeployerDeployTask($deployerBin);
-        $task->branch($branch);
+
+        if ($this->isTag($branch)) {
+            $task->tag($branch);
+        } else {
+            $task->branch($branch);
+        }
+
         $task->stage($stage);
 
         // Map Verbosity
@@ -530,11 +526,48 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function createTask()
     {
-        $task = call_user_func_array(['parent', 'task'], func_get_args());
+        $task = \call_user_func_array(['parent', 'task'], \func_get_args());
         $task->setInput($this->input());
         $task->setOutput($this->output());
 
         return $task;
     }
 
+    /**
+     * @param string $branchOrTag
+     *
+     * @return bool
+     */
+    protected function isTag($branchOrTag)
+    {
+        $tagList = $this->getTagList();
+
+        return \in_array($branchOrTag, $tagList, true);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getTagList()
+    {
+        if ($this->tags === null) {
+            $gitBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN);
+            $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
+
+            // use exec since the output from the task cannot be accessed anymore since AUG-2017
+            $tagRefs = [];
+            exec("$gitBin -C $gitDir show-ref --tags", $tagRefs);
+
+            foreach ($tagRefs as $tagRefData) {
+                if (empty($tagRefData)) {
+                    continue;
+                }
+                $tagData = explode('/', $tagRefData);
+                $tag = array_pop($tagData);
+                $this->tags[$tag] = $tag;
+            }
+        }
+
+        return $this->tags;
+    }
 }
