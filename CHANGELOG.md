@@ -2,6 +2,8 @@
 
 ## next
 
+## 2.3.0
+
 - [FEATURE] add optional paramter revision to checkout specific revision  
     at the moment this feature still needs the branch name  
     the branch-name can also contain the revision using ``@`` as separator (``develop@123456``)
