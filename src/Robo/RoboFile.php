@@ -15,8 +15,8 @@ use Psr\Log\LoggerAwareInterface;
 class RoboFile extends RoboTasks implements LoggerAwareInterface
 {
     const OPT_REINSTALL_PROJECT = 'reinstall-project';
-    const OPT_DROP_VENDOR = 'drop-vendor';
-    const OPT_DROP_DATABASE = 'drop-database';
+    const OPT_DROP_VENDOR       = 'drop-vendor';
+    const OPT_DROP_DATABASE     = 'drop-database';
     const OPT_DEPLOYER_PARALLEL = 'parallel|p';
 
     /**
@@ -24,6 +24,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
      *
      * @param string $stage Environment to deploy to (by default: local/staging/production)
      * @param string $branchOrTag Branch or Tag to deploy
+     * @param string $revision
      * @param array $opts
      *
      * @option $reinstall-project Reinstall project by deleting env.php file and running setup:install
@@ -34,16 +35,17 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
     public function deploy(
         $stage,
         $branchOrTag,
+        $revision = '',
         $opts = [
             self::OPT_REINSTALL_PROJECT => false,
-            self::OPT_DROP_VENDOR => false,
-            self::OPT_DROP_DATABASE => false,
+            self::OPT_DROP_VENDOR       => false,
+            self::OPT_DROP_DATABASE     => false,
             self::OPT_DEPLOYER_PARALLEL => false,
         ]
     ) {
         $this->startTimer();
 
-        $this->deployMagentoSetup($branchOrTag, $opts);
+        $this->deployMagentoSetup($branchOrTag, $revision, $opts);
 
         $this->deployArtifactsGenerate();
 
@@ -73,24 +75,26 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
      * STAGE command to setup / update Magento and its dependencies
      *
      * @param string $branchOrTag Branch or Tag to deploy
+     * @param string $revision
      * @param array $opts
      *
      * @option $parallel activate parallel deployment mode for deployer
      */
     public function deployMagentoSetup(
         $branchOrTag,
+        $revision = '',
         $opts = [
             self::OPT_REINSTALL_PROJECT => false,
-            self::OPT_DROP_VENDOR => false,
-            self::OPT_DROP_DATABASE => false,
+            self::OPT_DROP_VENDOR       => false,
+            self::OPT_DROP_DATABASE     => false,
         ]
     ) {
         $this->startTimer();
 
         // options are always set (Robo)
         $reinstallProject = $opts[self::OPT_REINSTALL_PROJECT];
-        $dropVendor = $opts[self::OPT_DROP_VENDOR];
-        $dropDatabase = $opts[self::OPT_DROP_DATABASE];
+        $dropVendor       = $opts[self::OPT_DROP_VENDOR];
+        $dropDatabase     = $opts[self::OPT_DROP_DATABASE];
         if ($dropDatabase === true) {
             $reinstallProject = true;
         }
@@ -98,7 +102,7 @@ class RoboFile extends RoboTasks implements LoggerAwareInterface
         $this->printStageInfo('MAGENTO SETUP');
 
         $this->printTaskInfo('UPDATE SOURCE CODE');
-        $this->taskUpdateSourceCode($branchOrTag)->run();
+        $this->taskUpdateSourceCode($branchOrTag, $revision)->run();
 
         $this->printTaskInfo('CLEAN VAR DIRS');
         $this->taskMagentoCleanVarDirs()->run();

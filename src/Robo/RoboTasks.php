@@ -24,7 +24,7 @@ use Robo\Common\Timer as RoboTimer;
  */
 class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 {
-    const MAGENTO_VENDOR_DIR = 'vendor';
+    const MAGENTO_VENDOR_DIR   = 'vendor';
     const MAGENTO_PATH_ENV_PHP = 'app/etc/env.php';
 
     use ConfigAwareTrait;
@@ -100,13 +100,14 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     /**
      * Build Task to update source code to desired branch/tag
      *
-     * @param $branch
+     * @param string $branch
+     * @param string $revision
      *
      * @return \Robo\Collection\CollectionBuilder
      */
-    protected function taskUpdateSourceCode($branch)
+    protected function taskUpdateSourceCode($branch, $revision = '')
     {
-        $repo = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
+        $repo   = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_URL);
         $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
         $gitBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_GIT_BIN);
 
@@ -123,13 +124,26 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         // Fetch origin
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['fetch', '-vp', 'origin']);
 
+        // Detect if tag or branch
+        $isTag = $this->isTag($branch);
+
+        // Only branches: check if branch is provided with revision hash e.g. develop@123456
+        if ($isTag !== true && \strpos($branch, '@') !== false) {
+            [$branch, $revision] = explode('@', $branch);
+        }
+
         // Checkout branch or tag
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['checkout', '-f', $branch]);
 
         // Reset to origin Branch / Tag
-        $resetTo = $this->isTag($branch) ? $branch : "origin/$branch";
+        $resetTo = $isTag ? $branch : "origin/$branch";
 
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['reset', '--hard', $resetTo]);
+
+        if (!empty($revision)) {
+            // checkout exact commit hash
+            $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['checkout', $revision]);
+        }
 
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['status']);
 
@@ -144,7 +158,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function taskMagentoCleanVarDirs()
     {
         $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
-        $varDirs = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_CLEAN_DIRS);
+        $varDirs    = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_CLEAN_DIRS);
 
         $dirs = [];
         foreach ($varDirs as $dir) {
@@ -171,14 +185,14 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoUpdateDependencies($dropVendor = false)
     {
-        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
+        $magentoDir     = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
         $pathToComposer = $this->config(Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN);
 
         /** @var RoboFile|CollectionBuilder $collection */
         $collection = $this->collectionBuilder();
         if ($dropVendor === true) {
             $vendorDir = self::MAGENTO_VENDOR_DIR;
-            $dir = "$magentoDir/$vendorDir";
+            $dir       = "$magentoDir/$vendorDir";
             $collection->taskDeleteDir($dir);
         }
 
@@ -201,7 +215,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     {
         $dbName = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-name');
 
-        $sqlDropDb = "DROP DATABASE `{$dbName}`";
+        $sqlDropDb   = "DROP DATABASE `{$dbName}`";
         $sqlCreateDb = "CREATE DATABASE IF NOT EXISTS `{$dbName}`";
 
         /** @var RoboFile|CollectionBuilder $collection */
@@ -316,7 +330,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskMagentoDumpAutoload()
     {
-        $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
+        $magentoDir     = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
         $pathToComposer = $this->config(Config::KEY_ENV . '/' . Config::KEY_COMPOSER_BIN);
 
         /** @var RoboFile|CollectionBuilder $collection */
@@ -341,7 +355,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function taskMagentoSetupStaticContentDeploy()
     {
         /** @var array $themes */
-        $themes = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES);
+        $themes     = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_THEMES);
         $magentoDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_APP_DIR);
 
         /** @var RoboFile|CollectionBuilder $collection */
@@ -368,9 +382,9 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
      */
     protected function taskArtifactCreatePackages()
     {
-        $rootDir = getcwd();
-        $tarBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN);
-        $gitDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
+        $rootDir      = getcwd();
+        $tarBin       = $this->config(Config::KEY_ENV . '/' . Config::KEY_TAR_BIN);
+        $gitDir       = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_GIT_DIR);
         $artifactsDir = $this->config(Config::KEY_DEPLOY . '/' . Config::KEY_ARTIFACTS_DIR);
 
         /** @var array $artifacts */
@@ -400,12 +414,12 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
 
             $tarOptions = '';
             if (array_key_exists('options', $artifactConfig)) {
-                $options = $artifactConfig['options'];
+                $options    = $artifactConfig['options'];
                 $tarOptions = implode(' ', $options);
             }
 
             $tarCmd = "$tarBin $tarOptions -czf $artifactPath $dir";
-            $task = $collection->taskExec($tarCmd);
+            $task   = $collection->taskExec($tarCmd);
             $task->dir($gitDir);
         }
 
@@ -457,12 +471,12 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function taskMysqlCommand()
     {
         $mysqlBin = $this->config(Config::KEY_ENV . '/' . Config::KEY_MYSQL_BIN);
-        $dbHost = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-host');
-        $dbUser = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-user');
-        $dbPass = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-password');
+        $dbHost   = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-host');
+        $dbUser   = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-user');
+        $dbPass   = $this->config(CONFIG::KEY_BUILD . '/' . Config::KEY_DB . '/db-password');
 
         $hostParts = explode(':', $dbHost);
-        $dbPort = null;
+        $dbPort    = null;
         if (count($hostParts) === 2) {
             $dbPort = array_pop($hostParts);
             $dbHost = array_pop($hostParts);
@@ -511,7 +525,7 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function printRuntime($method)
     {
         $context = [
-            'time' => $this->getExecutionTime(),
+            'time'        => $this->getExecutionTime(),
             'timer-label' => 'in',
         ];
         $this->logger->log(ConsoleLogLevel::SUCCESS, "<info>$method</info> finished", $context);
@@ -562,8 +576,8 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
                 if (empty($tagRefData)) {
                     continue;
                 }
-                $tagData = explode('/', $tagRefData);
-                $tag = array_pop($tagData);
+                $tagData          = explode('/', $tagRefData);
+                $tag              = array_pop($tagData);
                 $this->tags[$tag] = $tag;
             }
         }
