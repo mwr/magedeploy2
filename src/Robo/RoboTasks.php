@@ -555,7 +555,11 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function isTag($branchOrTag)
     {
         $tagList = $this->getTagList();
-
+        
+        if(!is_array($tagList)) {
+            return false;
+        }
+        
         return \in_array($branchOrTag, $tagList, true);
     }
 
