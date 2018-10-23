@@ -124,13 +124,13 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
         // Fetch origin
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['fetch', '-vp', 'origin']);
 
-        // Detect if tag or branch
-        $isTag = $this->isTag($branch);
-
-        // Only branches: check if branch is provided with revision hash e.g. develop@123456
-        if ($isTag !== true && \strpos($branch, '@') !== false) {
+        // parse the revision from the parameter if set
+        if (\strpos($branch, '@') !== false) {
             [$branch, $revision] = explode('@', $branch);
         }
+
+        // Detect if tag or branch
+        $isTag = $this->isTag($branch);
 
         // Checkout branch or tag
         $collection->taskGitStack($gitBin)->dir($gitDir)->exec(['checkout', '-f', $branch]);
@@ -555,7 +555,11 @@ class RoboTasks extends \Robo\Tasks implements LoggerAwareInterface
     protected function isTag($branchOrTag)
     {
         $tagList = $this->getTagList();
-
+        
+        if(!is_array($tagList)) {
+            return false;
+        }
+        
         return \in_array($branchOrTag, $tagList, true);
     }
 
