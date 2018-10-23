@@ -2,6 +2,10 @@
 
 ## next
 
+## 2.3.1
+
+- [FIX] move branch parsing before tag detection to prevent errors when building tags
+
 ## 2.3.0
 
 - [FEATURE] add optional paramter revision to checkout specific revision  
